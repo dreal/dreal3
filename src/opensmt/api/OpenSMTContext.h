@@ -246,6 +246,9 @@ public:
   inline void setWorklistFP (const bool b ) {
       config.nra_worklist_fp = b;
   }
+  inline void setGAC (const bool b ) {
+      config.nra_gac = b;
+  }
 
   inline void setMaxPrecision ( const double d )
   {

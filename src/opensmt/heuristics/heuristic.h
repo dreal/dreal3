@@ -43,7 +43,7 @@ class heuristic {
   public:
   heuristic() : m_is_initialized(false), backtracked(false), lastTrailEnd(2) {}
     virtual ~heuristic();
-    virtual void initialize(SMTConfig &, Egraph &, THandler* thandler,
+    virtual bool initialize(SMTConfig &, Egraph &, THandler* thandler,
                     vec<Lit> *trail, vec<int> *trail_lim);
     virtual void inform(Enode * e);
     virtual void backtrack();
@@ -71,5 +71,6 @@ class heuristic {
     Egraph * m_egraph;
     std::set<Enode*> stack_literals;
     SMTConfig *m_config;
+    int lastDecisionStackEnd;
   };
 }

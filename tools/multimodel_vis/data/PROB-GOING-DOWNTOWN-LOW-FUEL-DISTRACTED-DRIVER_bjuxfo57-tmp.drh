@@ -1,0 +1,654 @@
+// A dReach model obtained from a CIRCA multi-model verifier automaton model.
+// Domain: PROB-GOING-DOWNTOWN-LOW-FUEL-DISTRACTED-DRIVER NIL
+// Date: 11/4/2016 11:09:34 
+// CIRCA version (*planner-version*): 25.04
+// RTA multi-model, incuding base model, rts model, and 2 nonvol models.
+
+#define MAX_CLOCK 101
+
+// drh-text elements
+#define N(x)    x'
+
+[0,201] time;
+
+(component shared_clock1;
+[0, MAX_CLOCK] clock;
+label reset_clock1;
+(mode on;
+  flow: d/dt[clock] = 1;
+  jump:
+        (reset_clock1) : true ==> @on (N(clock) = 0);
+)
+)
+(component base_model;
+
+// Continuous Variables
+[-50, 150] distance;
+[-10, 100] fuel;
+
+// Labels
+label NOOP;
+label F_ACT_LISTEN_TO_PODCAST;
+label C_ACT_LISTEN_TO_PODCAST;
+label S_ACT_LISTEN_TO_PODCAST;
+label F_ACT_EAT_BREAKFAST;
+label C_ACT_EAT_BREAKFAST;
+label S_ACT_EAT_BREAKFAST;
+label F_ACT_SEND_TEXT;
+label C_ACT_SEND_TEXT;
+label S_ACT_SEND_TEXT;
+label F_UNC_ARRIVE;
+label F_UNC_OUT_OF_FUEL;
+label FAIL;
+label F_ACT_CALL_MOM;
+label C_ACT_CALL_MOM;
+label S_ACT_CALL_MOM;
+label F_ACT_START_GOING_DOWNTOWN;
+label E_UNC_ARRIVE;
+label E_UNC_OUT_OF_FUEL;
+label C_ACT_START_GOING_DOWNTOWN;
+label S_ACT_START_GOING_DOWNTOWN;
+label INIT;
+label D_UNC_OUT_OF_FUEL;
+label D_UNC_ARRIVE;
+// Modes 
+/* :INITIAL */
+/* continuous element p: NIL */
+(mode s00000000;
+  flow: 
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION initial transition>
+    (INIT D_UNC_OUT_OF_FUEL D_UNC_ARRIVE ): true ==>
+    @s00000001 true;
+)
+
+/* #<STATE 0 [Initial]: #<FEATURE-SET ((AT-DOWNTOWN F) (ATE-BREAKFAST F) (CALLED-MOM F) (FAILURE F) (GOING NOWHERE) (LISTENED-TO-PODCAST F) (SENT-TEXT F))>> */
+/* continuous element p: NIL */
+(mode s00000001;
+  flow: d/dt[distance] = 0; d/dt[fuel] = 0;
+  jump:
+    // #<ACTION-FIRE-COMPONENT-TRANSITION START_GOING_DOWNTOWN>
+    (E_UNC_OUT_OF_FUEL E_UNC_ARRIVE F_ACT_START_GOING_DOWNTOWN ): true ==>
+    @s00000003 true;
+    // #<ACTION-COMMIT-COMPONENT-TRANSITION START_GOING_DOWNTOWN>
+    (D_UNC_OUT_OF_FUEL D_UNC_ARRIVE C_ACT_START_GOING_DOWNTOWN ): true ==>
+    @s00000001 true;
+    // #<ACTION-SENSE-COMPONENT-TRANSITION START_GOING_DOWNTOWN>
+    (D_UNC_OUT_OF_FUEL D_UNC_ARRIVE S_ACT_START_GOING_DOWNTOWN ): true ==>
+    @s00000001 true;
+)
+
+/* :FAILURE */
+/* continuous element p: NIL */
+(mode s00000002;
+  flow: 
+  jump:
+)
+
+/* #<STATE 1: #<FEATURE-SET ((AT-DOWNTOWN F) (ATE-BREAKFAST F) (CALLED-MOM F) (FAILURE F) (GOING DOWNTOWN) (LISTENED-TO-PODCAST F) (SENT-TEXT F))>> */
+/* continuous element p: NIL */
+(mode s00000003;
+  flow: d/dt[distance] = 1; d/dt[fuel] = -1;
+  jump:
+    // #<UNPREEMPTED-NONVOL-COMPONENT-TRANSITION ARRIVE>
+    (F_UNC_ARRIVE D_UNC_OUT_OF_FUEL D_UNC_ARRIVE ): true ==>
+    @s00000005 true;
+    // #<FAILED-NONVOL-PREEMPTION-COMPONENT-TRANSITION OUT_OF_FUEL>
+    (FAIL F_UNC_OUT_OF_FUEL D_UNC_OUT_OF_FUEL ): true ==>
+    @s00000002 true;
+    // #<ACTION-FIRE-COMPONENT-TRANSITION CALL_MOM>
+    (E_UNC_OUT_OF_FUEL E_UNC_ARRIVE F_ACT_CALL_MOM ): true ==>
+    @s00000004 true;
+    // #<ACTION-COMMIT-COMPONENT-TRANSITION CALL_MOM>
+    (E_UNC_OUT_OF_FUEL E_UNC_ARRIVE C_ACT_CALL_MOM ): true ==>
+    @s00000003 true;
+    // #<ACTION-SENSE-COMPONENT-TRANSITION CALL_MOM>
+    (E_UNC_OUT_OF_FUEL E_UNC_ARRIVE S_ACT_CALL_MOM ): true ==>
+    @s00000003 true;
+)
+
+/* #<STATE 5: #<FEATURE-SET ((AT-DOWNTOWN F) (ATE-BREAKFAST F) (CALLED-MOM T) (FAILURE F) (GOING DOWNTOWN) (LISTENED-TO-PODCAST F) (SENT-TEXT F))>> */
+/* continuous element p: NIL */
+(mode s00000004;
+  flow: d/dt[distance] = 1; d/dt[fuel] = -1;
+  jump:
+    // #<UNPREEMPTED-NONVOL-COMPONENT-TRANSITION ARRIVE>
+    (F_UNC_ARRIVE D_UNC_OUT_OF_FUEL D_UNC_ARRIVE ): true ==>
+    @s00000007 true;
+    // #<FAILED-NONVOL-PREEMPTION-COMPONENT-TRANSITION OUT_OF_FUEL>
+    (FAIL F_UNC_OUT_OF_FUEL D_UNC_OUT_OF_FUEL ): true ==>
+    @s00000002 true;
+    // #<ACTION-FIRE-COMPONENT-TRANSITION SEND_TEXT>
+    (E_UNC_OUT_OF_FUEL E_UNC_ARRIVE F_ACT_SEND_TEXT ): true ==>
+    @s00000006 true;
+    // #<ACTION-COMMIT-COMPONENT-TRANSITION SEND_TEXT>
+    (E_UNC_OUT_OF_FUEL E_UNC_ARRIVE C_ACT_SEND_TEXT ): true ==>
+    @s00000004 true;
+    // #<ACTION-SENSE-COMPONENT-TRANSITION SEND_TEXT>
+    (E_UNC_OUT_OF_FUEL E_UNC_ARRIVE S_ACT_SEND_TEXT ): true ==>
+    @s00000004 true;
+)
+
+/* #<STATE 3: #<FEATURE-SET ((AT-DOWNTOWN T) (ATE-BREAKFAST F) (CALLED-MOM F) (FAILURE F) (GOING NOWHERE) (LISTENED-TO-PODCAST F) (SENT-TEXT F))>> */
+/* continuous element p: NIL */
+(mode s00000005;
+  flow: d/dt[distance] = 0; d/dt[fuel] = 0;
+  jump:
+)
+
+/* #<STATE 9: #<FEATURE-SET ((AT-DOWNTOWN F) (ATE-BREAKFAST F) (CALLED-MOM T) (FAILURE F) (GOING DOWNTOWN) (LISTENED-TO-PODCAST F) (SENT-TEXT T))>> */
+/* continuous element p: NIL */
+(mode s00000006;
+  flow: d/dt[distance] = 1; d/dt[fuel] = -1;
+  jump:
+    // #<UNPREEMPTED-NONVOL-COMPONENT-TRANSITION ARRIVE>
+    (F_UNC_ARRIVE D_UNC_OUT_OF_FUEL D_UNC_ARRIVE ): true ==>
+    @s00000009 true;
+    // #<FAILED-NONVOL-PREEMPTION-COMPONENT-TRANSITION OUT_OF_FUEL>
+    (FAIL F_UNC_OUT_OF_FUEL D_UNC_OUT_OF_FUEL ): true ==>
+    @s00000002 true;
+    // #<ACTION-FIRE-COMPONENT-TRANSITION EAT_BREAKFAST>
+    (E_UNC_OUT_OF_FUEL E_UNC_ARRIVE F_ACT_EAT_BREAKFAST ): true ==>
+    @s00000008 true;
+    // #<ACTION-COMMIT-COMPONENT-TRANSITION EAT_BREAKFAST>
+    (E_UNC_OUT_OF_FUEL E_UNC_ARRIVE C_ACT_EAT_BREAKFAST ): true ==>
+    @s00000006 true;
+    // #<ACTION-SENSE-COMPONENT-TRANSITION EAT_BREAKFAST>
+    (E_UNC_OUT_OF_FUEL E_UNC_ARRIVE S_ACT_EAT_BREAKFAST ): true ==>
+    @s00000006 true;
+)
+
+/* #<STATE 7: #<FEATURE-SET ((AT-DOWNTOWN T) (ATE-BREAKFAST F) (CALLED-MOM T) (FAILURE F) (GOING NOWHERE) (LISTENED-TO-PODCAST F) (SENT-TEXT F))>> */
+/* continuous element p: NIL */
+(mode s00000007;
+  flow: d/dt[distance] = 0; d/dt[fuel] = 0;
+  jump:
+)
+
+/* #<STATE 13: #<FEATURE-SET ((AT-DOWNTOWN F) (ATE-BREAKFAST T) (CALLED-MOM T) (FAILURE F) (GOING DOWNTOWN) (LISTENED-TO-PODCAST F) (SENT-TEXT T))>> */
+/* continuous element p: NIL */
+(mode s00000008;
+  flow: d/dt[distance] = 1; d/dt[fuel] = -1;
+  jump:
+    // #<UNPREEMPTED-NONVOL-COMPONENT-TRANSITION ARRIVE>
+    (F_UNC_ARRIVE D_UNC_OUT_OF_FUEL D_UNC_ARRIVE ): true ==>
+    @s00000011 true;
+    // #<FAILED-NONVOL-PREEMPTION-COMPONENT-TRANSITION OUT_OF_FUEL>
+    (FAIL F_UNC_OUT_OF_FUEL D_UNC_OUT_OF_FUEL ): true ==>
+    @s00000002 true;
+    // #<ACTION-FIRE-COMPONENT-TRANSITION LISTEN_TO_PODCAST>
+    (E_UNC_OUT_OF_FUEL E_UNC_ARRIVE F_ACT_LISTEN_TO_PODCAST ): true ==>
+    @s00000010 true;
+    // #<ACTION-COMMIT-COMPONENT-TRANSITION LISTEN_TO_PODCAST>
+    (E_UNC_OUT_OF_FUEL E_UNC_ARRIVE C_ACT_LISTEN_TO_PODCAST ): true ==>
+    @s00000008 true;
+    // #<ACTION-SENSE-COMPONENT-TRANSITION LISTEN_TO_PODCAST>
+    (E_UNC_OUT_OF_FUEL E_UNC_ARRIVE S_ACT_LISTEN_TO_PODCAST ): true ==>
+    @s00000008 true;
+)
+
+/* #<STATE 11: #<FEATURE-SET ((AT-DOWNTOWN T) (ATE-BREAKFAST F) (CALLED-MOM T) (FAILURE F) (GOING NOWHERE) (LISTENED-TO-PODCAST F) (SENT-TEXT T))>> */
+/* continuous element p: NIL */
+(mode s00000009;
+  flow: d/dt[distance] = 0; d/dt[fuel] = 0;
+  jump:
+)
+
+/* #<STATE 17: #<FEATURE-SET ((AT-DOWNTOWN F) (ATE-BREAKFAST T) (CALLED-MOM T) (FAILURE F) (GOING DOWNTOWN) (LISTENED-TO-PODCAST T) (SENT-TEXT T))>> */
+/* continuous element p: NIL */
+(mode s00000010;
+  flow: d/dt[distance] = 1; d/dt[fuel] = -1;
+  jump:
+    // #<UNPREEMPTED-NONVOL-COMPONENT-TRANSITION ARRIVE>
+    (F_UNC_ARRIVE D_UNC_OUT_OF_FUEL D_UNC_ARRIVE ): true ==>
+    @s00000012 true;
+    // #<FAILED-NONVOL-PREEMPTION-COMPONENT-TRANSITION OUT_OF_FUEL>
+    (FAIL F_UNC_OUT_OF_FUEL D_UNC_OUT_OF_FUEL ): true ==>
+    @s00000002 true;
+    // #<COMPONENT-MODEL-TRANSITION no-op>
+    (NOOP ): true ==>
+    @s00000010 true;
+)
+
+/* #<STATE 15: #<FEATURE-SET ((AT-DOWNTOWN T) (ATE-BREAKFAST T) (CALLED-MOM T) (FAILURE F) (GOING NOWHERE) (LISTENED-TO-PODCAST F) (SENT-TEXT T))>> */
+/* continuous element p: NIL */
+(mode s00000011;
+  flow: d/dt[distance] = 0; d/dt[fuel] = 0;
+  jump:
+)
+
+/* #<STATE 19: #<FEATURE-SET ((AT-DOWNTOWN T) (ATE-BREAKFAST T) (CALLED-MOM T) (FAILURE F) (GOING NOWHERE) (LISTENED-TO-PODCAST T) (SENT-TEXT T))>> */
+/* continuous element p: NIL */
+(mode s00000012;
+  flow: d/dt[distance] = 0; d/dt[fuel] = 0;
+  jump:
+)
+
+
+)
+(component rts_model;
+
+[0, MAX_CLOCK] clock;
+// Labels
+label NOOP;
+label C_ACT_LISTEN_TO_PODCAST;
+label F_ACT_LISTEN_TO_PODCAST;
+label S_ACT_LISTEN_TO_PODCAST;
+label C_ACT_EAT_BREAKFAST;
+label F_ACT_EAT_BREAKFAST;
+label S_ACT_EAT_BREAKFAST;
+label C_ACT_SEND_TEXT;
+label F_ACT_SEND_TEXT;
+label S_ACT_SEND_TEXT;
+label F_UNC_ARRIVE;
+label F_UNC_OUT_OF_FUEL;
+label C_ACT_CALL_MOM;
+label F_ACT_CALL_MOM;
+label S_ACT_CALL_MOM;
+label GHOST;
+label C_ACT_START_GOING_DOWNTOWN;
+label F_ACT_START_GOING_DOWNTOWN;
+label S_ACT_START_GOING_DOWNTOWN;
+label INIT;
+// Modes 
+/* continuous element p: NIL */
+(mode s00000000;
+  invt: time = 0;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION init RTS>
+    (INIT ): true ==>
+    @s00000001 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000001;
+  invt: clock = 0; time = 0;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION no-op>
+    (NOOP ): true ==>
+    @s00000017 true;
+    // #<COMPONENT-MODEL-TRANSITION sensing_LISTEN_TO_PODCAST>
+    (S_ACT_LISTEN_TO_PODCAST ): true ==>
+    @s00000015 true;
+    // #<COMPONENT-MODEL-TRANSITION sensing_EAT_BREAKFAST>
+    (S_ACT_EAT_BREAKFAST ): true ==>
+    @s00000012 true;
+    // #<COMPONENT-MODEL-TRANSITION sensing_SEND_TEXT>
+    (S_ACT_SEND_TEXT ): true ==>
+    @s00000009 true;
+    // #<COMPONENT-MODEL-TRANSITION sensing_CALL_MOM>
+    (S_ACT_CALL_MOM ): true ==>
+    @s00000006 true;
+    // #<COMPONENT-MODEL-TRANSITION sensing_START_GOING_DOWNTOWN>
+    (S_ACT_START_GOING_DOWNTOWN ): true ==>
+    @s00000003 true;
+)
+
+/* continuous element p: NIL */
+(mode s00000002;
+  invt: clock <= 1; time <= 1;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION fire_START_GOING_DOWNTOWN>
+    (F_ACT_START_GOING_DOWNTOWN ): clock >= 0 ==>
+    @s00000001 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000003;
+  invt: clock = 0; time = 0;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION commit_START_GOING_DOWNTOWN>
+    (C_ACT_START_GOING_DOWNTOWN ): clock = 0 ==>
+    @s00000002 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000004;
+  invt: clock <= 1;  time <= 1;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION ghost_fire_START_GOING_DOWNTOWN>
+    (GHOST F_ACT_START_GOING_DOWNTOWN ): clock >= 0 ==>
+    @s00000001 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000005;
+  invt: clock <= 1;  time <= 1;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION ghost_ARRIVE>
+    (F_UNC_ARRIVE ): true ==>
+    @s00000007 true;
+    // #<COMPONENT-MODEL-TRANSITION ghost_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL ): true ==>
+    @s00000007 true;
+    // #<COMPONENT-MODEL-TRANSITION fire_CALL_MOM>
+    (F_ACT_CALL_MOM ): clock >= 0 ==>
+    @s00000001 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000006;
+  invt: clock = 0; time = 0;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION preempt_commit_CALL_MOM_ARRIVE>
+    (F_UNC_ARRIVE ): true ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION preempt_commit_CALL_MOM_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL ): true ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION commit_CALL_MOM>
+    (C_ACT_CALL_MOM ): clock = 0 ==>
+    @s00000005 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000007;
+  invt: clock <= 1;  time <= 1;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION ghost_ARRIVE>
+    (F_UNC_ARRIVE ): true ==>
+    @s00000007 true;
+    // #<COMPONENT-MODEL-TRANSITION ghost_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL ): true ==>
+    @s00000007 true;
+    // #<COMPONENT-MODEL-TRANSITION ghost_fire_CALL_MOM>
+    (GHOST F_ACT_CALL_MOM ): clock >= 0 ==>
+    @s00000001 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000008;
+  invt: clock <= 1;  time <= 1;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION ghost_ARRIVE>
+    (F_UNC_ARRIVE ): true ==>
+    @s00000010 true;
+    // #<COMPONENT-MODEL-TRANSITION ghost_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL ): true ==>
+    @s00000010 true;
+    // #<COMPONENT-MODEL-TRANSITION fire_SEND_TEXT>
+    (F_ACT_SEND_TEXT ): clock >= 0 ==>
+    @s00000001 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000009;
+  invt: clock = 0; time = 0;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION preempt_commit_SEND_TEXT_ARRIVE>
+    (F_UNC_ARRIVE ): true ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION preempt_commit_SEND_TEXT_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL ): true ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION commit_SEND_TEXT>
+    (C_ACT_SEND_TEXT ): clock = 0 ==>
+    @s00000008 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000010;
+  invt: clock <= 1;  time <= 1;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION ghost_ARRIVE>
+    (F_UNC_ARRIVE ): true ==>
+    @s00000010 true;
+    // #<COMPONENT-MODEL-TRANSITION ghost_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL ): true ==>
+    @s00000010 true;
+    // #<COMPONENT-MODEL-TRANSITION ghost_fire_SEND_TEXT>
+    (GHOST F_ACT_SEND_TEXT ): clock >= 0 ==>
+    @s00000001 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000011;
+  invt: clock <= 1;  time <= 1;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION ghost_ARRIVE>
+    (F_UNC_ARRIVE ): true ==>
+    @s00000013 true;
+    // #<COMPONENT-MODEL-TRANSITION ghost_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL ): true ==>
+    @s00000013 true;
+    // #<COMPONENT-MODEL-TRANSITION fire_EAT_BREAKFAST>
+    (F_ACT_EAT_BREAKFAST ): clock >= 0 ==>
+    @s00000001 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000012;
+  invt: clock = 0; time = 0;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION preempt_commit_EAT_BREAKFAST_ARRIVE>
+    (F_UNC_ARRIVE ): true ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION preempt_commit_EAT_BREAKFAST_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL ): true ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION commit_EAT_BREAKFAST>
+    (C_ACT_EAT_BREAKFAST ): clock = 0 ==>
+    @s00000011 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000013;
+  invt: clock <= 1;  time <= 1;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION ghost_ARRIVE>
+    (F_UNC_ARRIVE ): true ==>
+    @s00000013 true;
+    // #<COMPONENT-MODEL-TRANSITION ghost_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL ): true ==>
+    @s00000013 true;
+    // #<COMPONENT-MODEL-TRANSITION ghost_fire_EAT_BREAKFAST>
+    (GHOST F_ACT_EAT_BREAKFAST ): clock >= 0 ==>
+    @s00000001 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000014;
+  invt: clock <= 1;  time <= 1;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION ghost_ARRIVE>
+    (F_UNC_ARRIVE ): true ==>
+    @s00000016 true;
+    // #<COMPONENT-MODEL-TRANSITION ghost_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL ): true ==>
+    @s00000016 true;
+    // #<COMPONENT-MODEL-TRANSITION fire_LISTEN_TO_PODCAST>
+    (F_ACT_LISTEN_TO_PODCAST ): clock >= 0 ==>
+    @s00000001 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000015;
+  invt: clock = 0; time = 0;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION preempt_commit_LISTEN_TO_PODCAST_ARRIVE>
+    (F_UNC_ARRIVE ): true ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION preempt_commit_LISTEN_TO_PODCAST_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL ): true ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION commit_LISTEN_TO_PODCAST>
+    (C_ACT_LISTEN_TO_PODCAST ): clock = 0 ==>
+    @s00000014 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000016;
+  invt: clock <= 1;  time <= 1;
+  flow: d/dt[clock] = 1;
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION ghost_ARRIVE>
+    (F_UNC_ARRIVE ): true ==>
+    @s00000016 true;
+    // #<COMPONENT-MODEL-TRANSITION ghost_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL ): true ==>
+    @s00000016 true;
+    // #<COMPONENT-MODEL-TRANSITION ghost_fire_LISTEN_TO_PODCAST>
+    (GHOST F_ACT_LISTEN_TO_PODCAST ): clock >= 0 ==>
+    @s00000001 (and (N(clock) = 0));
+)
+
+/* continuous element p: NIL */
+(mode s00000017;
+  flow: d/dt[clock] = 1;  
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION fire_ARRIVE>
+    (F_UNC_ARRIVE ): true ==>
+    @s00000001 (and (N(clock) = 0));
+    // #<COMPONENT-MODEL-TRANSITION fire_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL ): true ==>
+    @s00000001 (and (N(clock) = 0));
+)
+
+
+)
+(component out_of_fuel;
+
+// Labels
+label F_UNC_OUT_OF_FUEL;
+label D_UNC_OUT_OF_FUEL;
+label INIT;
+label E_UNC_OUT_OF_FUEL;
+label reset_clock;
+// Modes 
+/* continuous element p: T */
+(mode s00000000;
+/* Intentionally blank invariant (continuous elements, but not enabled loc) */
+  flow: 
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION enable_OUT_OF_FUEL>
+    (INIT E_UNC_OUT_OF_FUEL reset_clock ): true ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION disable_OUT_OF_FUEL>
+    (INIT D_UNC_OUT_OF_FUEL ): true ==>
+    @s00000002 true;
+)
+
+/* continuous element p: T */
+(mode s00000001;
+  invt: fuel >= 0;
+  flow: 
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION fire_en_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL E_UNC_OUT_OF_FUEL ): fuel = 0 ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION fire_dis_OUT_OF_FUEL>
+    (F_UNC_OUT_OF_FUEL D_UNC_OUT_OF_FUEL ): fuel = 0 ==>
+    @s00000002 true;
+    // #<COMPONENT-MODEL-TRANSITION enable_OUT_OF_FUEL>
+    (E_UNC_OUT_OF_FUEL ): true ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION disable_OUT_OF_FUEL>
+    (D_UNC_OUT_OF_FUEL ): true ==>
+    @s00000002 true;
+)
+
+/* continuous element p: T */
+(mode s00000002;
+/* Intentionally blank invariant (continuous elements, but not enabled loc) */
+  flow: 
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION enable_OUT_OF_FUEL>
+    (E_UNC_OUT_OF_FUEL reset_clock ): true ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION disable_OUT_OF_FUEL>
+    (D_UNC_OUT_OF_FUEL ): true ==>
+    @s00000002 true;
+)
+
+
+)
+(component arrive;
+
+// Labels
+label F_UNC_ARRIVE;
+label D_UNC_ARRIVE;
+label INIT;
+label E_UNC_ARRIVE;
+label reset_clock;
+// Modes 
+/* continuous element p: T */
+(mode s00000000;
+/* Intentionally blank invariant (continuous elements, but not enabled loc) */
+  flow: 
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION enable_ARRIVE>
+    (INIT E_UNC_ARRIVE reset_clock ): true ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION disable_ARRIVE>
+    (INIT D_UNC_ARRIVE ): true ==>
+    @s00000002 true;
+)
+
+/* continuous element p: T */
+(mode s00000001;
+  invt: distance <= 100;
+  flow: 
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION fire_en_ARRIVE>
+    (F_UNC_ARRIVE E_UNC_ARRIVE ): distance > 95 ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION fire_dis_ARRIVE>
+    (F_UNC_ARRIVE D_UNC_ARRIVE ): distance > 95 ==>
+    @s00000002 true;
+    // #<COMPONENT-MODEL-TRANSITION enable_ARRIVE>
+    (E_UNC_ARRIVE ): true ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION disable_ARRIVE>
+    (D_UNC_ARRIVE ): true ==>
+    @s00000002 true;
+)
+
+/* continuous element p: T */
+(mode s00000002;
+/* Intentionally blank invariant (continuous elements, but not enabled loc) */
+  flow: 
+  jump:
+    // #<COMPONENT-MODEL-TRANSITION enable_ARRIVE>
+    (E_UNC_ARRIVE reset_clock ): true ==>
+    @s00000001 true;
+    // #<COMPONENT-MODEL-TRANSITION disable_ARRIVE>
+    (D_UNC_ARRIVE ): true ==>
+    @s00000002 true;
+)
+
+
+)
+analyze:
+clock2 =  shared_clock1[[clock/time_clock2, reset_clock1/reset_time_clock_2_1], @on (time_clock2 = 0)];
+clock3 =  shared_clock1[[clock/time_clock3, reset_clock1/reset_time_clock_3_1], @on (time_clock3 = 0)];
+out_of_fuel0 = out_of_fuel[[clock/time_clock2, reset_clock/reset_time_clock_2_1], @s00000000 true];
+arrive0 = arrive[[clock/time_clock3, reset_clock/reset_time_clock_3_1], @s00000000 true];
+base_model0 = base_model[[], @s00000000 (and (distance = 0) (fuel = 50) )];
+rts_model0 = rts_model[[clock/time_clock1], @s00000000 (time_clock1 = 0)];
+
+(clock3 ||
+clock2 ||
+rts_model0 ||
+base_model0 ||
+arrive0 ||
+out_of_fuel0);
+
+// Goal is *failure*, for safety verification
+goal:
+(@base_model0.s00000002) : true;

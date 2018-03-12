@@ -1,0 +1,58 @@
+/* ------------------------------------------------------------ */
+/* Nodes */
+
+node {
+    background-color: #FFF;
+    border-width: 2;
+    border-color: #CCC;
+
+    label: data(label);
+
+    text-valign: center;
+    text-halign: center;
+}
+
+node:selected {
+    background-color: #CCC;
+    /* border-width: 4; */
+    /* border-color: #000; */
+
+    font-weight: bold;
+}
+
+node[type = "transition"] {
+    label: data(label);
+
+    /* background-color: #500; */
+    background-opacity: 0.0;
+    border-opacity: 0.0;
+    shape: rectangle;
+    width: label;
+    height: label;
+    text-valign: center;
+    text-halign: center;
+    padding-left: 4;
+    padding-right: 4;
+    padding-top: 4;
+    padding-bottom: 4;
+}
+
+/* ------------------------------------------------------------ */
+/* Edges */
+
+edge {
+    width: 3;
+    curve-style: bezier;
+    line-color: #ccc;
+    target-arrow-color: #ccc;
+    target-arrow-shape: triangle;
+    label: data(label);
+
+    text-rotation: autorotate;
+}
+
+edge:selected {
+    width: 4;
+    line-color: #000;
+    target-arrow-color: #000;
+}

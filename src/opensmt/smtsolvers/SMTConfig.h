@@ -229,6 +229,7 @@ struct SMTConfig
   bool         nra_mcss;                      // use monte carlo stack search in icp
   bool         nra_local_opt;                 // use local optimization to refine counter example (for exist-forall problems)
   bool         nra_worklist_fp;               // use worklist fixpoint algorithm
+  bool         nra_gac;                       // use generalized arc consistency algorithm
   bool         nra_multiprune;                // try the top k dimensions to branch on, and see which contract the most before selecting a branch
   bool         nra_multiheuristic;            // run two heuristics simultaneously, return when only one of them completes
   bool         nra_sizegrad_brancher;         // gradient-based branching heuristics
@@ -239,6 +240,7 @@ struct SMTConfig
   std::string  nra_plan_heuristic;
   std::string  nra_plan_domain;               // planning domain
   std::string  nra_plan_problem;              // planning instance
+  std::string  nra_schedule_heuristic;        // hybrid scheduling heuristic
   int          nra_icp_decisions;             // number of icp branch nodes
   bool         nra_show_search_progress;      // print search progress to console
   bool         nra_heuristic_forward;         // use forward search in the heuristic solution

@@ -150,7 +150,7 @@ void SimpSMTSolver::initialize( )
 
   theory_handler = new THandler( egraph, config, *this, trail, level, assigns, var_True, var_False );
 
-  heuristic->initialize(config, egraph, theory_handler, &trail, &trail_lim);
+  heuristic_shows_not_unsat = heuristic->initialize(config, egraph, theory_handler, &trail, &trail_lim);
 }
 
 Var SimpSMTSolver::newVar(bool sign, bool dvar)

@@ -1,0 +1,4062 @@
+delta-sat with the following box:
+	distance_0_0 : [0, 0];
+	distance_0_t : [0, 0];
+	distance_10_0 : [1, 1];
+	distance_10_t : [1, 1];
+	distance_11_0 : [1, 1];
+	distance_11_t : [1, 1];
+	distance_12_0 : [1, 1];
+	distance_12_t : [1, 1];
+	distance_13_0 : [1, 1];
+	distance_13_t : [1, 1];
+	distance_14_0 : [1, 1];
+	distance_14_t : [1, 1];
+	distance_15_0 : [1, 1];
+	distance_15_t : [2, 2];
+	distance_16_0 : [2, 2];
+	distance_16_t : [2, 2];
+	distance_17_0 : [2, 2];
+	distance_17_t : [50, 50];
+	distance_18_0 : [50, 50];
+	distance_18_t : [50, 50];
+	distance_1_0 : [-0, 0];
+	distance_1_t : [-0, 0];
+	distance_2_0 : [-0, 0];
+	distance_2_t : [-0, 0];
+	distance_3_0 : [-0, 0];
+	distance_3_t : [0, 0];
+	distance_4_0 : [-0, 0];
+	distance_4_t : [-0, 0];
+	distance_5_0 : [-0, 0];
+	distance_5_t : [-0, 0];
+	distance_6_0 : [-0, 0];
+	distance_6_t : [1, 1];
+	distance_7_0 : [1, 1];
+	distance_7_t : [1, 1];
+	distance_8_0 : [1, 1];
+	distance_8_t : [1, 1];
+	distance_9_0 : [1, 1];
+	distance_9_t : [1, 1];
+	fuel_0_0 : [50, 50];
+	fuel_0_t : [50, 50];
+	fuel_10_0 : [49, 49];
+	fuel_10_t : [49, 49];
+	fuel_11_0 : [49, 49];
+	fuel_11_t : [49, 49];
+	fuel_12_0 : [49, 49];
+	fuel_12_t : [49, 49];
+	fuel_13_0 : [49, 49];
+	fuel_13_t : [49, 49];
+	fuel_14_0 : [49, 49];
+	fuel_14_t : [49, 49];
+	fuel_15_0 : [49, 49];
+	fuel_15_t : [48, 48];
+	fuel_16_0 : [48, 48];
+	fuel_16_t : [48, 48];
+	fuel_17_0 : [48, 48];
+	fuel_17_t : [0, 0];
+	fuel_18_0 : [-0, 0];
+	fuel_18_t : [-0, 0];
+	fuel_1_0 : [50, 50];
+	fuel_1_t : [50, 50];
+	fuel_2_0 : [50, 50];
+	fuel_2_t : [50, 50];
+	fuel_3_0 : [50, 50];
+	fuel_3_t : [50, 50];
+	fuel_4_0 : [50, 50];
+	fuel_4_t : [50, 50];
+	fuel_5_0 : [50, 50];
+	fuel_5_t : [50, 50];
+	fuel_6_0 : [50, 50];
+	fuel_6_t : [49, 49];
+	fuel_7_0 : [49, 49];
+	fuel_7_t : [49, 49];
+	fuel_8_0 : [49, 49];
+	fuel_8_t : [49, 49];
+	fuel_9_0 : [49, 49];
+	fuel_9_t : [49, 49];
+	gamma_base_model0_10_s00000009_10_0 : [0, 0];
+	gamma_base_model0_10_s00000009_11_0 : [0, 0];
+	gamma_base_model0_10_s00000009_12_0 : [0, 0];
+	gamma_base_model0_10_s00000009_13_0 : [0, 0];
+	gamma_base_model0_10_s00000009_14_0 : [0, 0];
+	gamma_base_model0_10_s00000009_15_0 : [0, 0];
+	gamma_base_model0_10_s00000009_16_0 : [0, 0];
+	gamma_base_model0_10_s00000009_17_0 : [0, 0];
+	gamma_base_model0_10_s00000009_18_0 : [0, 0];
+	gamma_base_model0_10_s00000009_5_0 : [0, 0];
+	gamma_base_model0_10_s00000009_6_0 : [0, 0];
+	gamma_base_model0_10_s00000009_7_0 : [0, 0];
+	gamma_base_model0_10_s00000009_8_0 : [0, 0];
+	gamma_base_model0_10_s00000009_9_0 : [0, 0];
+	gamma_base_model0_11_s00000010_10_0 : [0, 0];
+	gamma_base_model0_11_s00000010_11_0 : [0, 0];
+	gamma_base_model0_11_s00000010_12_0 : [0, 0];
+	gamma_base_model0_11_s00000010_13_0 : [0, 0];
+	gamma_base_model0_11_s00000010_14_0 : [0, 0];
+	gamma_base_model0_11_s00000010_15_0 : [0, 0];
+	gamma_base_model0_11_s00000010_16_0 : [1, 1];
+	gamma_base_model0_11_s00000010_17_0 : [1, 1];
+	gamma_base_model0_11_s00000010_18_0 : [0, 0];
+	gamma_base_model0_11_s00000010_6_0 : [0, 0];
+	gamma_base_model0_11_s00000010_7_0 : [0, 0];
+	gamma_base_model0_11_s00000010_8_0 : [0, 0];
+	gamma_base_model0_11_s00000010_9_0 : [0, 0];
+	gamma_base_model0_12_s00000011_10_0 : [0, 0];
+	gamma_base_model0_12_s00000011_11_0 : [0, 0];
+	gamma_base_model0_12_s00000011_12_0 : [0, 0];
+	gamma_base_model0_12_s00000011_13_0 : [0, 0];
+	gamma_base_model0_12_s00000011_14_0 : [0, 0];
+	gamma_base_model0_12_s00000011_15_0 : [0, 0];
+	gamma_base_model0_12_s00000011_16_0 : [0, 0];
+	gamma_base_model0_12_s00000011_17_0 : [0, 0];
+	gamma_base_model0_12_s00000011_18_0 : [0, 0];
+	gamma_base_model0_12_s00000011_6_0 : [0, 0];
+	gamma_base_model0_12_s00000011_7_0 : [0, 0];
+	gamma_base_model0_12_s00000011_8_0 : [0, 0];
+	gamma_base_model0_12_s00000011_9_0 : [0, 0];
+	gamma_base_model0_13_s00000012_10_0 : [0, 0];
+	gamma_base_model0_13_s00000012_11_0 : [0, 0];
+	gamma_base_model0_13_s00000012_12_0 : [0, 0];
+	gamma_base_model0_13_s00000012_13_0 : [0, 0];
+	gamma_base_model0_13_s00000012_14_0 : [0, 0];
+	gamma_base_model0_13_s00000012_15_0 : [0, 0];
+	gamma_base_model0_13_s00000012_16_0 : [0, 0];
+	gamma_base_model0_13_s00000012_17_0 : [0, 0];
+	gamma_base_model0_13_s00000012_18_0 : [0, 0];
+	gamma_base_model0_13_s00000012_7_0 : [0, 0];
+	gamma_base_model0_13_s00000012_8_0 : [0, 0];
+	gamma_base_model0_13_s00000012_9_0 : [0, 0];
+	gamma_base_model0_2_s00000001_10_0 : [0, 0];
+	gamma_base_model0_2_s00000001_11_0 : [0, 0];
+	gamma_base_model0_2_s00000001_12_0 : [0, 0];
+	gamma_base_model0_2_s00000001_13_0 : [0, 0];
+	gamma_base_model0_2_s00000001_14_0 : [0, 0];
+	gamma_base_model0_2_s00000001_15_0 : [0, 0];
+	gamma_base_model0_2_s00000001_16_0 : [0, 0];
+	gamma_base_model0_2_s00000001_17_0 : [0, 0];
+	gamma_base_model0_2_s00000001_18_0 : [0, 0];
+	gamma_base_model0_2_s00000001_1_0 : [1, 1];
+	gamma_base_model0_2_s00000001_2_0 : [1, 1];
+	gamma_base_model0_2_s00000001_3_0 : [1, 1];
+	gamma_base_model0_2_s00000001_4_0 : [0, 0];
+	gamma_base_model0_2_s00000001_5_0 : [0, 0];
+	gamma_base_model0_2_s00000001_6_0 : [0, 0];
+	gamma_base_model0_2_s00000001_7_0 : [0, 0];
+	gamma_base_model0_2_s00000001_8_0 : [0, 0];
+	gamma_base_model0_2_s00000001_9_0 : [0, 0];
+	gamma_base_model0_4_s00000003_10_0 : [0, 0];
+	gamma_base_model0_4_s00000003_11_0 : [0, 0];
+	gamma_base_model0_4_s00000003_12_0 : [0, 0];
+	gamma_base_model0_4_s00000003_13_0 : [0, 0];
+	gamma_base_model0_4_s00000003_14_0 : [0, 0];
+	gamma_base_model0_4_s00000003_15_0 : [0, 0];
+	gamma_base_model0_4_s00000003_16_0 : [0, 0];
+	gamma_base_model0_4_s00000003_17_0 : [0, 0];
+	gamma_base_model0_4_s00000003_18_0 : [0, 0];
+	gamma_base_model0_4_s00000003_2_0 : [0, 0];
+	gamma_base_model0_4_s00000003_3_0 : [0, 0];
+	gamma_base_model0_4_s00000003_4_0 : [1, 1];
+	gamma_base_model0_4_s00000003_5_0 : [1, 1];
+	gamma_base_model0_4_s00000003_6_0 : [1, 1];
+	gamma_base_model0_4_s00000003_7_0 : [0, 0];
+	gamma_base_model0_4_s00000003_8_0 : [0, 0];
+	gamma_base_model0_4_s00000003_9_0 : [0, 0];
+	gamma_base_model0_5_s00000004_10_0 : [0, 0];
+	gamma_base_model0_5_s00000004_11_0 : [0, 0];
+	gamma_base_model0_5_s00000004_12_0 : [0, 0];
+	gamma_base_model0_5_s00000004_13_0 : [0, 0];
+	gamma_base_model0_5_s00000004_14_0 : [0, 0];
+	gamma_base_model0_5_s00000004_15_0 : [0, 0];
+	gamma_base_model0_5_s00000004_16_0 : [0, 0];
+	gamma_base_model0_5_s00000004_17_0 : [0, 0];
+	gamma_base_model0_5_s00000004_18_0 : [0, 0];
+	gamma_base_model0_5_s00000004_3_0 : [0, 0];
+	gamma_base_model0_5_s00000004_4_0 : [0, 0];
+	gamma_base_model0_5_s00000004_5_0 : [0, 0];
+	gamma_base_model0_5_s00000004_6_0 : [0, 0];
+	gamma_base_model0_5_s00000004_7_0 : [1, 1];
+	gamma_base_model0_5_s00000004_8_0 : [1, 1];
+	gamma_base_model0_5_s00000004_9_0 : [1, 1];
+	gamma_base_model0_6_s00000005_10_0 : [0, 0];
+	gamma_base_model0_6_s00000005_11_0 : [0, 0];
+	gamma_base_model0_6_s00000005_12_0 : [0, 0];
+	gamma_base_model0_6_s00000005_13_0 : [0, 0];
+	gamma_base_model0_6_s00000005_14_0 : [0, 0];
+	gamma_base_model0_6_s00000005_15_0 : [0, 0];
+	gamma_base_model0_6_s00000005_16_0 : [0, 0];
+	gamma_base_model0_6_s00000005_17_0 : [0, 0];
+	gamma_base_model0_6_s00000005_18_0 : [0, 0];
+	gamma_base_model0_6_s00000005_3_0 : [0, 0];
+	gamma_base_model0_6_s00000005_4_0 : [0, 0];
+	gamma_base_model0_6_s00000005_5_0 : [0, 0];
+	gamma_base_model0_6_s00000005_6_0 : [0, 0];
+	gamma_base_model0_6_s00000005_7_0 : [0, 0];
+	gamma_base_model0_6_s00000005_8_0 : [0, 0];
+	gamma_base_model0_6_s00000005_9_0 : [0, 0];
+	gamma_base_model0_7_s00000006_10_0 : [1, 1];
+	gamma_base_model0_7_s00000006_11_0 : [1, 1];
+	gamma_base_model0_7_s00000006_12_0 : [1, 1];
+	gamma_base_model0_7_s00000006_13_0 : [0, 0];
+	gamma_base_model0_7_s00000006_14_0 : [0, 0];
+	gamma_base_model0_7_s00000006_15_0 : [0, 0];
+	gamma_base_model0_7_s00000006_16_0 : [0, 0];
+	gamma_base_model0_7_s00000006_17_0 : [0, 0];
+	gamma_base_model0_7_s00000006_18_0 : [0, 0];
+	gamma_base_model0_7_s00000006_4_0 : [0, 0];
+	gamma_base_model0_7_s00000006_5_0 : [0, 0];
+	gamma_base_model0_7_s00000006_6_0 : [0, 0];
+	gamma_base_model0_7_s00000006_7_0 : [0, 0];
+	gamma_base_model0_7_s00000006_8_0 : [0, 0];
+	gamma_base_model0_7_s00000006_9_0 : [0, 0];
+	gamma_base_model0_8_s00000007_10_0 : [0, 0];
+	gamma_base_model0_8_s00000007_11_0 : [0, 0];
+	gamma_base_model0_8_s00000007_12_0 : [0, 0];
+	gamma_base_model0_8_s00000007_13_0 : [0, 0];
+	gamma_base_model0_8_s00000007_14_0 : [0, 0];
+	gamma_base_model0_8_s00000007_15_0 : [0, 0];
+	gamma_base_model0_8_s00000007_16_0 : [0, 0];
+	gamma_base_model0_8_s00000007_17_0 : [0, 0];
+	gamma_base_model0_8_s00000007_18_0 : [0, 0];
+	gamma_base_model0_8_s00000007_4_0 : [0, 0];
+	gamma_base_model0_8_s00000007_5_0 : [0, 0];
+	gamma_base_model0_8_s00000007_6_0 : [0, 0];
+	gamma_base_model0_8_s00000007_7_0 : [0, 0];
+	gamma_base_model0_8_s00000007_8_0 : [0, 0];
+	gamma_base_model0_8_s00000007_9_0 : [0, 0];
+	gamma_base_model0_9_s00000008_10_0 : [0, 0];
+	gamma_base_model0_9_s00000008_11_0 : [0, 0];
+	gamma_base_model0_9_s00000008_12_0 : [0, 0];
+	gamma_base_model0_9_s00000008_13_0 : [1, 1];
+	gamma_base_model0_9_s00000008_14_0 : [1, 1];
+	gamma_base_model0_9_s00000008_15_0 : [1, 1];
+	gamma_base_model0_9_s00000008_16_0 : [0, 0];
+	gamma_base_model0_9_s00000008_17_0 : [0, 0];
+	gamma_base_model0_9_s00000008_18_0 : [0, 0];
+	gamma_base_model0_9_s00000008_5_0 : [0, 0];
+	gamma_base_model0_9_s00000008_6_0 : [0, 0];
+	gamma_base_model0_9_s00000008_7_0 : [0, 0];
+	gamma_base_model0_9_s00000008_8_0 : [0, 0];
+	gamma_base_model0_9_s00000008_9_0 : [0, 0];
+	gamma_clock2_1_on_0_0 : [1, 1];
+	gamma_clock2_1_on_10_0 : [1, 1];
+	gamma_clock2_1_on_11_0 : [1, 1];
+	gamma_clock2_1_on_12_0 : [1, 1];
+	gamma_clock2_1_on_13_0 : [1, 1];
+	gamma_clock2_1_on_14_0 : [1, 1];
+	gamma_clock2_1_on_15_0 : [1, 1];
+	gamma_clock2_1_on_16_0 : [1, 1];
+	gamma_clock2_1_on_17_0 : [1, 1];
+	gamma_clock2_1_on_18_0 : [1, 1];
+	gamma_clock2_1_on_1_0 : [1, 1];
+	gamma_clock2_1_on_2_0 : [1, 1];
+	gamma_clock2_1_on_3_0 : [1, 1];
+	gamma_clock2_1_on_4_0 : [1, 1];
+	gamma_clock2_1_on_5_0 : [1, 1];
+	gamma_clock2_1_on_6_0 : [1, 1];
+	gamma_clock2_1_on_7_0 : [1, 1];
+	gamma_clock2_1_on_8_0 : [1, 1];
+	gamma_clock2_1_on_9_0 : [1, 1];
+	gamma_clock3_1_on_0_0 : [1, 1];
+	gamma_clock3_1_on_10_0 : [1, 1];
+	gamma_clock3_1_on_11_0 : [1, 1];
+	gamma_clock3_1_on_12_0 : [1, 1];
+	gamma_clock3_1_on_13_0 : [1, 1];
+	gamma_clock3_1_on_14_0 : [1, 1];
+	gamma_clock3_1_on_15_0 : [1, 1];
+	gamma_clock3_1_on_16_0 : [1, 1];
+	gamma_clock3_1_on_17_0 : [1, 1];
+	gamma_clock3_1_on_18_0 : [1, 1];
+	gamma_clock3_1_on_1_0 : [1, 1];
+	gamma_clock3_1_on_2_0 : [1, 1];
+	gamma_clock3_1_on_3_0 : [1, 1];
+	gamma_clock3_1_on_4_0 : [1, 1];
+	gamma_clock3_1_on_5_0 : [1, 1];
+	gamma_clock3_1_on_6_0 : [1, 1];
+	gamma_clock3_1_on_7_0 : [1, 1];
+	gamma_clock3_1_on_8_0 : [1, 1];
+	gamma_clock3_1_on_9_0 : [1, 1];
+	gamma_rts_model0_10_s00000009_10_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_11_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_12_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_13_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_14_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_15_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_16_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_17_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_18_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_2_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_3_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_4_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_5_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_6_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_7_0 : [0, 0];
+	gamma_rts_model0_10_s00000009_8_0 : [1, 1];
+	gamma_rts_model0_10_s00000009_9_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_10_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_11_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_12_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_13_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_14_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_15_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_16_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_17_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_18_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_4_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_5_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_6_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_7_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_8_0 : [0, 0];
+	gamma_rts_model0_11_s00000010_9_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_10_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_11_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_12_0 : [1, 1];
+	gamma_rts_model0_12_s00000011_13_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_14_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_15_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_16_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_17_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_18_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_3_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_4_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_5_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_6_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_7_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_8_0 : [0, 0];
+	gamma_rts_model0_12_s00000011_9_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_10_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_11_0 : [1, 1];
+	gamma_rts_model0_13_s00000012_12_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_13_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_14_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_15_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_16_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_17_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_18_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_2_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_3_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_4_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_5_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_6_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_7_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_8_0 : [0, 0];
+	gamma_rts_model0_13_s00000012_9_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_10_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_11_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_12_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_13_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_14_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_15_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_16_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_17_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_18_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_4_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_5_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_6_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_7_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_8_0 : [0, 0];
+	gamma_rts_model0_14_s00000013_9_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_10_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_11_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_12_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_13_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_14_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_15_0 : [1, 1];
+	gamma_rts_model0_15_s00000014_16_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_17_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_18_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_3_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_4_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_5_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_6_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_7_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_8_0 : [0, 0];
+	gamma_rts_model0_15_s00000014_9_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_10_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_11_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_12_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_13_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_14_0 : [1, 1];
+	gamma_rts_model0_16_s00000015_15_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_16_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_17_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_18_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_2_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_3_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_4_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_5_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_6_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_7_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_8_0 : [0, 0];
+	gamma_rts_model0_16_s00000015_9_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_10_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_11_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_12_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_13_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_14_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_15_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_16_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_17_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_18_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_4_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_5_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_6_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_7_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_8_0 : [0, 0];
+	gamma_rts_model0_17_s00000016_9_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_10_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_11_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_12_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_13_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_14_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_15_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_16_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_17_0 : [1, 1];
+	gamma_rts_model0_18_s00000017_18_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_2_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_3_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_4_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_5_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_6_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_7_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_8_0 : [0, 0];
+	gamma_rts_model0_18_s00000017_9_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_0_0 : [1, 1];
+	gamma_rts_model0_1_s00000000_10_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_11_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_12_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_13_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_14_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_15_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_16_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_17_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_18_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_1_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_2_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_3_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_4_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_5_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_6_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_7_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_8_0 : [0, 0];
+	gamma_rts_model0_1_s00000000_9_0 : [0, 0];
+	gamma_rts_model0_2_s00000001_10_0 : [1, 1];
+	gamma_rts_model0_2_s00000001_11_0 : [0, 0];
+	gamma_rts_model0_2_s00000001_12_0 : [0, 0];
+	gamma_rts_model0_2_s00000001_13_0 : [1, 1];
+	gamma_rts_model0_2_s00000001_14_0 : [0, 0];
+	gamma_rts_model0_2_s00000001_15_0 : [0, 0];
+	gamma_rts_model0_2_s00000001_16_0 : [1, 1];
+	gamma_rts_model0_2_s00000001_17_0 : [0, 0];
+	gamma_rts_model0_2_s00000001_18_0 : [1, 1];
+	gamma_rts_model0_2_s00000001_1_0 : [1, 1];
+	gamma_rts_model0_2_s00000001_2_0 : [0, 0];
+	gamma_rts_model0_2_s00000001_3_0 : [0, 0];
+	gamma_rts_model0_2_s00000001_4_0 : [1, 1];
+	gamma_rts_model0_2_s00000001_5_0 : [0, 0];
+	gamma_rts_model0_2_s00000001_6_0 : [0, 0];
+	gamma_rts_model0_2_s00000001_7_0 : [1, 1];
+	gamma_rts_model0_2_s00000001_8_0 : [0, 0];
+	gamma_rts_model0_2_s00000001_9_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_10_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_11_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_12_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_13_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_14_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_15_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_16_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_17_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_18_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_3_0 : [1, 1];
+	gamma_rts_model0_3_s00000002_4_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_5_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_6_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_7_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_8_0 : [0, 0];
+	gamma_rts_model0_3_s00000002_9_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_10_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_11_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_12_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_13_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_14_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_15_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_16_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_17_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_18_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_2_0 : [1, 1];
+	gamma_rts_model0_4_s00000003_3_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_4_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_5_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_6_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_7_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_8_0 : [0, 0];
+	gamma_rts_model0_4_s00000003_9_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_10_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_11_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_12_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_13_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_14_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_15_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_16_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_17_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_18_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_3_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_4_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_5_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_6_0 : [1, 1];
+	gamma_rts_model0_6_s00000005_7_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_8_0 : [0, 0];
+	gamma_rts_model0_6_s00000005_9_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_10_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_11_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_12_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_13_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_14_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_15_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_16_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_17_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_18_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_2_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_3_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_4_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_5_0 : [1, 1];
+	gamma_rts_model0_7_s00000006_6_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_7_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_8_0 : [0, 0];
+	gamma_rts_model0_7_s00000006_9_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_10_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_11_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_12_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_13_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_14_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_15_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_16_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_17_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_18_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_4_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_5_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_6_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_7_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_8_0 : [0, 0];
+	gamma_rts_model0_8_s00000007_9_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_10_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_11_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_12_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_13_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_14_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_15_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_16_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_17_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_18_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_3_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_4_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_5_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_6_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_7_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_8_0 : [0, 0];
+	gamma_rts_model0_9_s00000008_9_0 : [1, 1];
+	time_0 : [0, 0];
+	time_1 : [0, 0];
+	time_10 : [0, 0];
+	time_11 : [0, 0];
+	time_12 : [0, 0];
+	time_13 : [0, 0];
+	time_14 : [0, 0];
+	time_15 : [1, 1];
+	time_16 : [0, 0];
+	time_17 : [48, 48];
+	time_18 : [0, 0];
+	time_2 : [0, 0];
+	time_3 : [1, 1];
+	time_4 : [0, 0];
+	time_5 : [0, 0];
+	time_6 : [1, 1];
+	time_7 : [0, 0];
+	time_8 : [0, 0];
+	time_9 : [0, 0];
+	time_clock1_0_0 : [0, 0];
+	time_clock1_0_t : [0, 0];
+	time_clock1_10_0 : [0, 0];
+	time_clock1_10_t : [0, 0];
+	time_clock1_11_0 : [0, 0];
+	time_clock1_11_t : [0, 0];
+	time_clock1_12_0 : [0, 0];
+	time_clock1_12_t : [0, 0];
+	time_clock1_13_0 : [0, 0];
+	time_clock1_13_t : [0, 0];
+	time_clock1_14_0 : [0, 0];
+	time_clock1_14_t : [0, 0];
+	time_clock1_15_0 : [0, 0];
+	time_clock1_15_t : [1, 1];
+	time_clock1_16_0 : [0, 0];
+	time_clock1_16_t : [0, 0];
+	time_clock1_17_0 : [0, 0];
+	time_clock1_17_t : [48, 48];
+	time_clock1_18_0 : [0, 0];
+	time_clock1_18_t : [0, 0];
+	time_clock1_1_0 : [0, 0];
+	time_clock1_1_t : [0, 0];
+	time_clock1_2_0 : [0, 0];
+	time_clock1_2_t : [0, 0];
+	time_clock1_3_0 : [0, 0];
+	time_clock1_3_t : [1, 1];
+	time_clock1_4_0 : [0, 0];
+	time_clock1_4_t : [0, 0];
+	time_clock1_5_0 : [0, 0];
+	time_clock1_5_t : [0, 0];
+	time_clock1_6_0 : [0, 0];
+	time_clock1_6_t : [1, 1];
+	time_clock1_7_0 : [0, 0];
+	time_clock1_7_t : [0, 0];
+	time_clock1_8_0 : [0, 0];
+	time_clock1_8_t : [0, 0];
+	time_clock1_9_0 : [0, 0];
+	time_clock1_9_t : [0, 0];
+	time_clock2_0_0 : [0, 0];
+	time_clock2_0_t : [0, 0];
+	time_clock2_10_0 : [1, 1];
+	time_clock2_10_t : [1, 1];
+	time_clock2_11_0 : [1, 1];
+	time_clock2_11_t : [1, 1];
+	time_clock2_12_0 : [1, 1];
+	time_clock2_12_t : [1, 1];
+	time_clock2_13_0 : [1, 1];
+	time_clock2_13_t : [1, 1];
+	time_clock2_14_0 : [1, 1];
+	time_clock2_14_t : [1, 1];
+	time_clock2_15_0 : [1, 1];
+	time_clock2_15_t : [2, 2];
+	time_clock2_16_0 : [2, 2];
+	time_clock2_16_t : [2, 2];
+	time_clock2_17_0 : [2, 2];
+	time_clock2_17_t : [50, 50];
+	time_clock2_18_0 : [50, 50];
+	time_clock2_18_t : [50, 50];
+	time_clock2_1_0 : [0, 0];
+	time_clock2_1_t : [0, 0];
+	time_clock2_2_0 : [0, 0];
+	time_clock2_2_t : [0, 0];
+	time_clock2_3_0 : [0, 0];
+	time_clock2_3_t : [1, 1];
+	time_clock2_4_0 : [0, 0];
+	time_clock2_4_t : [0, 0];
+	time_clock2_5_0 : [0, 0];
+	time_clock2_5_t : [0, 0];
+	time_clock2_6_0 : [0, 0];
+	time_clock2_6_t : [1, 1];
+	time_clock2_7_0 : [1, 1];
+	time_clock2_7_t : [1, 1];
+	time_clock2_8_0 : [1, 1];
+	time_clock2_8_t : [1, 1];
+	time_clock2_9_0 : [1, 1];
+	time_clock2_9_t : [1, 1];
+	time_clock3_0_0 : [0, 0];
+	time_clock3_0_t : [0, 0];
+	time_clock3_10_0 : [1, 1];
+	time_clock3_10_t : [1, 1];
+	time_clock3_11_0 : [1, 1];
+	time_clock3_11_t : [1, 1];
+	time_clock3_12_0 : [1, 1];
+	time_clock3_12_t : [1, 1];
+	time_clock3_13_0 : [1, 1];
+	time_clock3_13_t : [1, 1];
+	time_clock3_14_0 : [1, 1];
+	time_clock3_14_t : [1, 1];
+	time_clock3_15_0 : [1, 1];
+	time_clock3_15_t : [2, 2];
+	time_clock3_16_0 : [2, 2];
+	time_clock3_16_t : [2, 2];
+	time_clock3_17_0 : [2, 2];
+	time_clock3_17_t : [50, 50];
+	time_clock3_18_0 : [50, 50];
+	time_clock3_18_t : [50, 50];
+	time_clock3_1_0 : [0, 0];
+	time_clock3_1_t : [0, 0];
+	time_clock3_2_0 : [0, 0];
+	time_clock3_2_t : [0, 0];
+	time_clock3_3_0 : [0, 0];
+	time_clock3_3_t : [1, 1];
+	time_clock3_4_0 : [0, 0];
+	time_clock3_4_t : [0, 0];
+	time_clock3_5_0 : [0, 0];
+	time_clock3_5_t : [0, 0];
+	time_clock3_6_0 : [0, 0];
+	time_clock3_6_t : [1, 1];
+	time_clock3_7_0 : [1, 1];
+	time_clock3_7_t : [1, 1];
+	time_clock3_8_0 : [1, 1];
+	time_clock3_8_t : [1, 1];
+	time_clock3_9_0 : [1, 1];
+	time_clock3_9_t : [1, 1]
+       mode_2_18_3_base_model0_s00000002 : T
+       mode_1_18_18_rts_model0_s00000017 : F
+        mode_1_18_1_rts_model0_s00000000 : F
+       mode_1_18_17_rts_model0_s00000016 : F
+       mode_1_18_16_rts_model0_s00000015 : F
+       mode_1_18_15_rts_model0_s00000014 : F
+       mode_1_18_14_rts_model0_s00000013 : F
+       mode_1_18_13_rts_model0_s00000012 : F
+       mode_1_18_12_rts_model0_s00000011 : F
+       mode_1_18_11_rts_model0_s00000010 : F
+       mode_1_18_10_rts_model0_s00000009 : F
+        mode_1_18_9_rts_model0_s00000008 : F
+        mode_1_18_8_rts_model0_s00000007 : F
+        mode_1_18_7_rts_model0_s00000006 : F
+        mode_1_18_6_rts_model0_s00000005 : F
+        mode_1_18_4_rts_model0_s00000003 : F
+        mode_1_18_3_rts_model0_s00000002 : F
+        mode_1_18_2_rts_model0_s00000001 : T
+      mode_2_18_13_base_model0_s00000012 : F
+       mode_2_18_1_base_model0_s00000000 : F
+      mode_2_18_12_base_model0_s00000011 : F
+      mode_2_18_11_base_model0_s00000010 : F
+      mode_2_18_10_base_model0_s00000009 : F
+       mode_2_18_9_base_model0_s00000008 : F
+       mode_2_18_8_base_model0_s00000007 : F
+       mode_2_18_7_base_model0_s00000006 : F
+       mode_2_18_6_base_model0_s00000005 : F
+       mode_2_18_5_base_model0_s00000004 : F
+       mode_2_18_4_base_model0_s00000003 : F
+       mode_2_18_2_base_model0_s00000001 : F
+           mode_3_18_3_arrive0_s00000002 : F
+           mode_3_18_1_arrive0_s00000000 : F
+           mode_3_18_2_arrive0_s00000001 : T
+      mode_4_18_3_out_of_fuel0_s00000002 : T
+      mode_4_18_1_out_of_fuel0_s00000000 : F
+      mode_4_18_2_out_of_fuel0_s00000001 : F
+                   mode_5_18_1_clock3_on : T
+                   mode_6_18_1_clock2_on : T
+                                noop_6_0 : T
+                                noop_5_0 : T
+                                noop_4_0 : F
+                                noop_3_0 : F
+                                noop_2_0 : F
+                                noop_1_0 : F
+         mode_1_0_1_rts_model0_s00000000 : T
+                    mode_5_0_1_clock3_on : T
+                    mode_6_0_1_clock2_on : T
+                           CNF_4568_4565 : F
+             sync_reset_time_clock_2_1_0 : F
+                    mode_6_1_1_clock2_on : T
+                           CNF_4568_4559 : T
+                           CNF_4587_4584 : F
+             sync_reset_time_clock_3_1_0 : F
+                    mode_5_1_1_clock3_on : T
+                           CNF_4587_4578 : T
+                           CNF_4624_4620 : F
+                sync_E_UNC_OUT_OF_FUEL_0 : F
+                             sync_INIT_0 : T
+                sync_D_UNC_OUT_OF_FUEL_0 : T
+                sync_F_UNC_OUT_OF_FUEL_0 : F
+       mode_4_1_2_out_of_fuel0_s00000001 : F
+       mode_4_0_1_out_of_fuel0_s00000000 : T
+                           CNF_4624_4612 : T
+       mode_4_1_3_out_of_fuel0_s00000002 : T
+                           CNF_4624_4604 : F
+       mode_4_1_1_out_of_fuel0_s00000000 : F
+                           CNF_4659_4655 : F
+                     sync_E_UNC_ARRIVE_0 : F
+                     sync_D_UNC_ARRIVE_0 : T
+                     sync_F_UNC_ARRIVE_0 : F
+            mode_3_1_2_arrive0_s00000001 : F
+            mode_3_0_1_arrive0_s00000000 : T
+                           CNF_4659_4647 : T
+            mode_3_1_3_arrive0_s00000002 : T
+                           CNF_4659_4639 : F
+            mode_3_1_1_arrive0_s00000000 : F
+                           CNF_4761_4758 : T
+       sync_S_ACT_START_GOING_DOWNTOWN_0 : F
+       sync_C_ACT_START_GOING_DOWNTOWN_0 : F
+       sync_F_ACT_START_GOING_DOWNTOWN_0 : F
+                   sync_S_ACT_CALL_MOM_0 : F
+                   sync_C_ACT_CALL_MOM_0 : F
+                   sync_F_ACT_CALL_MOM_0 : F
+                             sync_FAIL_0 : F
+                  sync_S_ACT_SEND_TEXT_0 : F
+                  sync_C_ACT_SEND_TEXT_0 : F
+                  sync_F_ACT_SEND_TEXT_0 : F
+              sync_S_ACT_EAT_BREAKFAST_0 : F
+              sync_C_ACT_EAT_BREAKFAST_0 : F
+              sync_F_ACT_EAT_BREAKFAST_0 : F
+          sync_S_ACT_LISTEN_TO_PODCAST_0 : F
+          sync_C_ACT_LISTEN_TO_PODCAST_0 : F
+          sync_F_ACT_LISTEN_TO_PODCAST_0 : F
+                             sync_NOOP_0 : F
+        mode_2_1_2_base_model0_s00000001 : T
+        mode_2_0_1_base_model0_s00000000 : T
+                           CNF_4761_4729 : F
+        mode_2_1_1_base_model0_s00000000 : F
+                           CNF_4819_4816 : T
+                            sync_GHOST_0 : F
+         mode_1_1_2_rts_model0_s00000001 : T
+                           CNF_4819_4790 : F
+         mode_1_1_1_rts_model0_s00000000 : F
+                                noop_6_1 : T
+                                noop_5_1 : T
+                                noop_4_1 : F
+                                noop_3_1 : F
+                                noop_2_1 : F
+                                noop_1_1 : F
+                           CNF_5129_5126 : F
+             sync_reset_time_clock_2_1_1 : F
+                    mode_6_2_1_clock2_on : T
+                           CNF_5129_5120 : T
+                           CNF_5148_5145 : F
+             sync_reset_time_clock_3_1_1 : F
+                    mode_5_2_1_clock3_on : T
+                           CNF_5148_5139 : T
+                           CNF_5247_5237 : F
+                sync_E_UNC_OUT_OF_FUEL_1 : F
+                             sync_INIT_1 : F
+                sync_D_UNC_OUT_OF_FUEL_1 : T
+                sync_F_UNC_OUT_OF_FUEL_1 : F
+       mode_4_2_2_out_of_fuel0_s00000001 : F
+                           CNF_5247_5229 : F
+       mode_4_2_3_out_of_fuel0_s00000002 : T
+                           CNF_5247_5221 : F
+                           CNF_5247_5213 : F
+                           CNF_5247_5204 : F
+                           CNF_5247_5197 : F
+                           CNF_5247_5189 : F
+                           CNF_5247_5181 : T
+                           CNF_5247_5154 : F
+       mode_4_2_1_out_of_fuel0_s00000000 : F
+                           CNF_5247_5152 : F
+                           CNF_5247_5150 : T
+                           CNF_5247_5158 : T
+                           CNF_5247_5174 : F
+                           CNF_5350_5340 : F
+                     sync_E_UNC_ARRIVE_1 : F
+                     sync_D_UNC_ARRIVE_1 : T
+                     sync_F_UNC_ARRIVE_1 : F
+            mode_3_2_2_arrive0_s00000001 : F
+                           CNF_5350_5332 : F
+            mode_3_2_3_arrive0_s00000002 : T
+                           CNF_5350_5324 : F
+                           CNF_5350_5316 : F
+                           CNF_5350_5301 : F
+                           CNF_5350_5294 : F
+                           CNF_5350_5286 : F
+                           CNF_5350_5278 : T
+                           CNF_5350_5253 : F
+            mode_3_2_1_arrive0_s00000000 : F
+                           CNF_5350_5251 : F
+                           CNF_5350_5249 : T
+                           CNF_5350_5257 : T
+                           CNF_5350_5271 : F
+                           CNF_5525_5519 : F
+       sync_S_ACT_START_GOING_DOWNTOWN_1 : T
+       sync_C_ACT_START_GOING_DOWNTOWN_1 : F
+       sync_F_ACT_START_GOING_DOWNTOWN_1 : F
+                   sync_S_ACT_CALL_MOM_1 : F
+                   sync_C_ACT_CALL_MOM_1 : F
+                   sync_F_ACT_CALL_MOM_1 : F
+                             sync_FAIL_1 : F
+                  sync_S_ACT_SEND_TEXT_1 : F
+                  sync_C_ACT_SEND_TEXT_1 : F
+                  sync_F_ACT_SEND_TEXT_1 : F
+              sync_S_ACT_EAT_BREAKFAST_1 : F
+              sync_C_ACT_EAT_BREAKFAST_1 : F
+              sync_F_ACT_EAT_BREAKFAST_1 : F
+          sync_S_ACT_LISTEN_TO_PODCAST_1 : F
+          sync_C_ACT_LISTEN_TO_PODCAST_1 : F
+          sync_F_ACT_LISTEN_TO_PODCAST_1 : F
+                             sync_NOOP_1 : F
+        mode_2_2_2_base_model0_s00000001 : T
+                           CNF_5525_5490 : F
+        mode_2_2_4_base_model0_s00000003 : F
+                           CNF_5525_5461 : F
+                           CNF_5525_5454 : T
+                           CNF_5525_5354 : F
+        mode_2_2_1_base_model0_s00000000 : F
+                           CNF_5525_5352 : T
+                           CNF_5525_5357 : T
+                           CNF_5525_5426 : F
+                           CNF_5739_5730 : F
+                            sync_GHOST_1 : F
+         mode_1_2_2_rts_model0_s00000001 : F
+                           CNF_5739_5704 : F
+        mode_1_2_18_rts_model0_s00000017 : F
+                           CNF_5739_5680 : F
+        mode_1_2_16_rts_model0_s00000015 : F
+                           CNF_5739_5656 : F
+        mode_1_2_13_rts_model0_s00000012 : F
+                           CNF_5739_5632 : F
+        mode_1_2_10_rts_model0_s00000009 : F
+                           CNF_5739_5608 : F
+         mode_1_2_7_rts_model0_s00000006 : F
+                           CNF_5739_5584 : T
+         mode_1_2_4_rts_model0_s00000003 : T
+                           CNF_5739_5529 : F
+         mode_1_2_1_rts_model0_s00000000 : F
+                           CNF_5739_5527 : F
+                           CNF_5739_5532 : F
+                           CNF_5739_5560 : F
+                                noop_6_2 : T
+                                noop_5_2 : T
+                                noop_4_2 : F
+                                noop_3_2 : F
+                                noop_2_2 : F
+                                noop_1_2 : F
+                           CNF_6391_6388 : F
+             sync_reset_time_clock_2_1_2 : F
+                    mode_6_3_1_clock2_on : T
+                           CNF_6391_6382 : T
+                           CNF_6410_6407 : F
+             sync_reset_time_clock_3_1_2 : F
+                    mode_5_3_1_clock3_on : T
+                           CNF_6410_6401 : T
+                           CNF_6509_6499 : F
+                sync_E_UNC_OUT_OF_FUEL_2 : F
+                             sync_INIT_2 : F
+                sync_D_UNC_OUT_OF_FUEL_2 : T
+                sync_F_UNC_OUT_OF_FUEL_2 : F
+       mode_4_3_2_out_of_fuel0_s00000001 : F
+                           CNF_6509_6491 : F
+       mode_4_3_3_out_of_fuel0_s00000002 : T
+                           CNF_6509_6483 : F
+                           CNF_6509_6475 : F
+                           CNF_6509_6466 : F
+                           CNF_6509_6459 : F
+                           CNF_6509_6451 : F
+                           CNF_6509_6443 : T
+                           CNF_6509_6416 : F
+       mode_4_3_1_out_of_fuel0_s00000000 : F
+                           CNF_6509_6414 : F
+                           CNF_6509_6412 : T
+                           CNF_6509_6420 : T
+                           CNF_6509_6436 : F
+                           CNF_6609_6599 : F
+                     sync_E_UNC_ARRIVE_2 : F
+                     sync_D_UNC_ARRIVE_2 : T
+                     sync_F_UNC_ARRIVE_2 : F
+            mode_3_3_2_arrive0_s00000001 : F
+                           CNF_6609_6591 : F
+            mode_3_3_3_arrive0_s00000002 : T
+                           CNF_6609_6583 : F
+                           CNF_6609_6575 : F
+                           CNF_6609_6563 : F
+                           CNF_6609_6556 : F
+                           CNF_6609_6548 : F
+                           CNF_6609_6540 : T
+                           CNF_6609_6515 : F
+            mode_3_3_1_arrive0_s00000000 : F
+                           CNF_6609_6513 : F
+                           CNF_6609_6511 : T
+                           CNF_6609_6519 : T
+                           CNF_6609_6533 : F
+                           CNF_6919_6908 : F
+       sync_S_ACT_START_GOING_DOWNTOWN_2 : F
+       sync_C_ACT_START_GOING_DOWNTOWN_2 : T
+       sync_F_ACT_START_GOING_DOWNTOWN_2 : F
+                   sync_S_ACT_CALL_MOM_2 : F
+                   sync_C_ACT_CALL_MOM_2 : F
+                   sync_F_ACT_CALL_MOM_2 : F
+                             sync_FAIL_2 : F
+                  sync_S_ACT_SEND_TEXT_2 : F
+                  sync_C_ACT_SEND_TEXT_2 : F
+                  sync_F_ACT_SEND_TEXT_2 : F
+              sync_S_ACT_EAT_BREAKFAST_2 : F
+              sync_C_ACT_EAT_BREAKFAST_2 : F
+              sync_F_ACT_EAT_BREAKFAST_2 : F
+          sync_S_ACT_LISTEN_TO_PODCAST_2 : F
+          sync_C_ACT_LISTEN_TO_PODCAST_2 : F
+          sync_F_ACT_LISTEN_TO_PODCAST_2 : F
+                             sync_NOOP_2 : F
+        mode_2_3_2_base_model0_s00000001 : T
+                           CNF_6919_6879 : F
+        mode_2_3_4_base_model0_s00000003 : F
+                           CNF_6919_6850 : T
+                           CNF_6919_6843 : F
+                           CNF_6919_6815 : F
+        mode_2_3_6_base_model0_s00000005 : F
+                           CNF_6919_6786 : F
+        mode_2_3_3_base_model0_s00000002 : F
+                           CNF_6919_6757 : F
+        mode_2_3_5_base_model0_s00000004 : F
+                           CNF_6919_6728 : F
+                           CNF_6919_6716 : F
+                           CNF_6919_6615 : F
+        mode_2_3_1_base_model0_s00000000 : F
+                           CNF_6919_6613 : T
+                           CNF_6919_6611 : F
+                           CNF_6919_6619 : T
+                           CNF_6919_6688 : F
+                           CNF_7476_7452 : F
+                            sync_GHOST_2 : F
+         mode_1_3_2_rts_model0_s00000001 : F
+                           CNF_7476_7428 : F
+        mode_1_3_18_rts_model0_s00000017 : F
+                           CNF_7476_7404 : F
+        mode_1_3_16_rts_model0_s00000015 : F
+                           CNF_7476_7380 : F
+        mode_1_3_13_rts_model0_s00000012 : F
+                           CNF_7476_7356 : F
+        mode_1_3_10_rts_model0_s00000009 : F
+                           CNF_7476_7332 : F
+         mode_1_3_7_rts_model0_s00000006 : F
+                           CNF_7476_7308 : F
+         mode_1_3_4_rts_model0_s00000003 : F
+                           CNF_7476_7284 : T
+         mode_1_3_3_rts_model0_s00000002 : T
+                           CNF_7476_7259 : F
+                           CNF_7476_7246 : F
+                           CNF_7476_7222 : F
+         mode_1_3_6_rts_model0_s00000005 : F
+                           CNF_7476_7197 : F
+                           CNF_7476_7184 : F
+                           CNF_7476_7160 : F
+         mode_1_3_9_rts_model0_s00000008 : F
+                           CNF_7476_7135 : F
+                           CNF_7476_7122 : F
+                           CNF_7476_7098 : F
+        mode_1_3_12_rts_model0_s00000011 : F
+                           CNF_7476_7073 : F
+                           CNF_7476_7060 : F
+                           CNF_7476_7036 : F
+        mode_1_3_15_rts_model0_s00000014 : F
+                           CNF_7476_7011 : F
+                           CNF_7476_6998 : F
+                           CNF_7476_6935 : F
+         mode_1_3_1_rts_model0_s00000000 : F
+                           CNF_7476_6933 : F
+                           CNF_7476_6931 : F
+                           CNF_7476_6929 : F
+                           CNF_7476_6927 : F
+                           CNF_7476_6925 : F
+                           CNF_7476_6923 : F
+                           CNF_7476_6921 : F
+                           CNF_7476_6944 : F
+                           CNF_7476_6972 : F
+                                noop_6_3 : F
+                                noop_5_3 : F
+                                noop_4_3 : F
+                                noop_3_3 : F
+                                noop_2_3 : F
+                                noop_1_3 : F
+                           CNF_8620_8617 : T
+             sync_reset_time_clock_2_1_3 : T
+                    mode_6_4_1_clock2_on : T
+                           CNF_8620_8611 : F
+                           CNF_8639_8636 : T
+             sync_reset_time_clock_3_1_3 : T
+                    mode_5_4_1_clock3_on : T
+                           CNF_8639_8630 : F
+                           CNF_8738_8728 : F
+                sync_E_UNC_OUT_OF_FUEL_3 : T
+                             sync_INIT_3 : F
+                sync_D_UNC_OUT_OF_FUEL_3 : F
+                sync_F_UNC_OUT_OF_FUEL_3 : F
+       mode_4_4_2_out_of_fuel0_s00000001 : T
+                           CNF_8738_8720 : F
+       mode_4_4_3_out_of_fuel0_s00000002 : F
+                           CNF_8738_8712 : F
+                           CNF_8738_8704 : F
+                           CNF_8738_8695 : F
+                           CNF_8738_8688 : F
+                           CNF_8738_8680 : T
+                           CNF_8738_8672 : F
+                           CNF_8738_8645 : F
+       mode_4_4_1_out_of_fuel0_s00000000 : F
+                           CNF_8738_8643 : F
+                           CNF_8738_8641 : F
+                           CNF_8738_8649 : F
+                           CNF_8738_8665 : F
+                           CNF_8838_8828 : F
+                     sync_E_UNC_ARRIVE_3 : T
+                     sync_D_UNC_ARRIVE_3 : F
+                     sync_F_UNC_ARRIVE_3 : F
+            mode_3_4_2_arrive0_s00000001 : T
+                           CNF_8838_8820 : F
+            mode_3_4_3_arrive0_s00000002 : F
+                           CNF_8838_8812 : F
+                           CNF_8838_8804 : F
+                           CNF_8838_8792 : F
+                           CNF_8838_8785 : F
+                           CNF_8838_8777 : T
+                           CNF_8838_8769 : F
+                           CNF_8838_8744 : F
+            mode_3_4_1_arrive0_s00000000 : F
+                           CNF_8838_8742 : F
+                           CNF_8838_8740 : F
+                           CNF_8838_8748 : F
+                           CNF_8838_8762 : F
+                           CNF_9295_9279 : F
+       sync_S_ACT_START_GOING_DOWNTOWN_3 : F
+       sync_C_ACT_START_GOING_DOWNTOWN_3 : F
+       sync_F_ACT_START_GOING_DOWNTOWN_3 : T
+                   sync_S_ACT_CALL_MOM_3 : F
+                   sync_C_ACT_CALL_MOM_3 : F
+                   sync_F_ACT_CALL_MOM_3 : F
+                             sync_FAIL_3 : F
+                  sync_S_ACT_SEND_TEXT_3 : F
+                  sync_C_ACT_SEND_TEXT_3 : F
+                  sync_F_ACT_SEND_TEXT_3 : F
+              sync_S_ACT_EAT_BREAKFAST_3 : F
+              sync_C_ACT_EAT_BREAKFAST_3 : F
+              sync_F_ACT_EAT_BREAKFAST_3 : F
+          sync_S_ACT_LISTEN_TO_PODCAST_3 : F
+          sync_C_ACT_LISTEN_TO_PODCAST_3 : F
+          sync_F_ACT_LISTEN_TO_PODCAST_3 : F
+                             sync_NOOP_3 : F
+        mode_2_4_2_base_model0_s00000001 : F
+                           CNF_9295_9250 : T
+        mode_2_4_4_base_model0_s00000003 : T
+                           CNF_9295_9221 : F
+                           CNF_9295_9214 : F
+                           CNF_9295_9186 : F
+        mode_2_4_6_base_model0_s00000005 : F
+                           CNF_9295_9157 : F
+        mode_2_4_3_base_model0_s00000002 : F
+                           CNF_9295_9128 : F
+        mode_2_4_5_base_model0_s00000004 : F
+                           CNF_9295_9099 : F
+                           CNF_9295_9087 : F
+                           CNF_9295_9059 : F
+        mode_2_4_8_base_model0_s00000007 : F
+                           CNF_9295_9030 : F
+                           CNF_9295_9001 : F
+        mode_2_4_7_base_model0_s00000006 : F
+                           CNF_9295_8972 : F
+                           CNF_9295_8954 : F
+                           CNF_9295_8850 : F
+        mode_2_4_1_base_model0_s00000000 : F
+                           CNF_9295_8848 : F
+                           CNF_9295_8846 : F
+                           CNF_9295_8844 : F
+                           CNF_9295_8842 : F
+                           CNF_9295_8840 : F
+                           CNF_9295_8857 : F
+                           CNF_9295_8926 : F
+                         CNF_10156_10119 : F
+                            sync_GHOST_3 : F
+         mode_1_4_2_rts_model0_s00000001 : T
+                         CNF_10156_10095 : F
+        mode_1_4_18_rts_model0_s00000017 : F
+                         CNF_10156_10071 : F
+        mode_1_4_16_rts_model0_s00000015 : F
+                         CNF_10156_10047 : F
+        mode_1_4_13_rts_model0_s00000012 : F
+                         CNF_10156_10023 : F
+        mode_1_4_10_rts_model0_s00000009 : F
+                          CNF_10156_9999 : F
+         mode_1_4_7_rts_model0_s00000006 : F
+                          CNF_10156_9975 : F
+         mode_1_4_4_rts_model0_s00000003 : F
+                          CNF_10156_9951 : T
+                          CNF_10156_9926 : F
+         mode_1_4_3_rts_model0_s00000002 : F
+                          CNF_10156_9901 : F
+         mode_1_4_8_rts_model0_s00000007 : F
+                          CNF_10156_9888 : F
+                          CNF_10156_9864 : F
+                          CNF_10156_9839 : F
+                          CNF_10156_9826 : F
+                          CNF_10156_9802 : F
+         mode_1_4_6_rts_model0_s00000005 : F
+                          CNF_10156_9777 : F
+        mode_1_4_11_rts_model0_s00000010 : F
+                          CNF_10156_9764 : F
+                          CNF_10156_9740 : F
+                          CNF_10156_9715 : F
+                          CNF_10156_9702 : F
+                          CNF_10156_9678 : F
+         mode_1_4_9_rts_model0_s00000008 : F
+                          CNF_10156_9653 : F
+        mode_1_4_14_rts_model0_s00000013 : F
+                          CNF_10156_9640 : F
+                          CNF_10156_9616 : F
+                          CNF_10156_9591 : F
+                          CNF_10156_9578 : F
+                          CNF_10156_9554 : F
+        mode_1_4_12_rts_model0_s00000011 : F
+                          CNF_10156_9529 : F
+        mode_1_4_17_rts_model0_s00000016 : F
+                          CNF_10156_9516 : F
+                          CNF_10156_9492 : F
+                          CNF_10156_9464 : F
+                          CNF_10156_9451 : F
+                          CNF_10156_9427 : F
+        mode_1_4_15_rts_model0_s00000014 : F
+                          CNF_10156_9402 : F
+                          CNF_10156_9389 : F
+                          CNF_10156_9321 : F
+         mode_1_4_1_rts_model0_s00000000 : F
+                          CNF_10156_9319 : F
+                          CNF_10156_9317 : F
+                          CNF_10156_9315 : F
+                          CNF_10156_9313 : F
+                          CNF_10156_9311 : F
+                          CNF_10156_9309 : F
+                          CNF_10156_9307 : F
+                          CNF_10156_9305 : F
+                          CNF_10156_9303 : F
+                          CNF_10156_9301 : F
+                          CNF_10156_9299 : F
+                          CNF_10156_9297 : F
+                          CNF_10156_9335 : F
+                          CNF_10156_9363 : F
+                                noop_6_4 : T
+                                noop_5_4 : T
+                                noop_4_4 : F
+                                noop_3_4 : F
+                                noop_2_4 : F
+                                noop_1_4 : F
+                         CNF_11776_11773 : F
+             sync_reset_time_clock_2_1_4 : F
+                    mode_6_5_1_clock2_on : T
+                         CNF_11776_11767 : T
+                         CNF_11795_11792 : F
+             sync_reset_time_clock_3_1_4 : F
+                    mode_5_5_1_clock3_on : T
+                         CNF_11795_11786 : T
+                         CNF_11894_11884 : F
+                sync_E_UNC_OUT_OF_FUEL_4 : T
+                             sync_INIT_4 : F
+                sync_D_UNC_OUT_OF_FUEL_4 : F
+                sync_F_UNC_OUT_OF_FUEL_4 : F
+       mode_4_5_2_out_of_fuel0_s00000001 : T
+                         CNF_11894_11876 : F
+       mode_4_5_3_out_of_fuel0_s00000002 : F
+                         CNF_11894_11868 : F
+                         CNF_11894_11860 : F
+                         CNF_11894_11851 : T
+                         CNF_11894_11844 : F
+                         CNF_11894_11836 : F
+                         CNF_11894_11828 : F
+                         CNF_11894_11801 : F
+       mode_4_5_1_out_of_fuel0_s00000000 : F
+                         CNF_11894_11799 : T
+                         CNF_11894_11797 : F
+                         CNF_11894_11805 : T
+                         CNF_11894_11821 : F
+                         CNF_11994_11984 : F
+                     sync_E_UNC_ARRIVE_4 : T
+                     sync_D_UNC_ARRIVE_4 : F
+                     sync_F_UNC_ARRIVE_4 : F
+            mode_3_5_2_arrive0_s00000001 : T
+                         CNF_11994_11976 : F
+            mode_3_5_3_arrive0_s00000002 : F
+                         CNF_11994_11968 : F
+                         CNF_11994_11960 : F
+                         CNF_11994_11948 : T
+                         CNF_11994_11941 : F
+                         CNF_11994_11933 : F
+                         CNF_11994_11925 : F
+                         CNF_11994_11900 : F
+            mode_3_5_1_arrive0_s00000000 : F
+                         CNF_11994_11898 : T
+                         CNF_11994_11896 : F
+                         CNF_11994_11904 : T
+                         CNF_11994_11918 : F
+                         CNF_12598_12577 : F
+       sync_S_ACT_START_GOING_DOWNTOWN_4 : F
+       sync_C_ACT_START_GOING_DOWNTOWN_4 : F
+       sync_F_ACT_START_GOING_DOWNTOWN_4 : F
+                   sync_S_ACT_CALL_MOM_4 : T
+                   sync_C_ACT_CALL_MOM_4 : F
+                   sync_F_ACT_CALL_MOM_4 : F
+                             sync_FAIL_4 : F
+                  sync_S_ACT_SEND_TEXT_4 : F
+                  sync_C_ACT_SEND_TEXT_4 : F
+                  sync_F_ACT_SEND_TEXT_4 : F
+              sync_S_ACT_EAT_BREAKFAST_4 : F
+              sync_C_ACT_EAT_BREAKFAST_4 : F
+              sync_F_ACT_EAT_BREAKFAST_4 : F
+          sync_S_ACT_LISTEN_TO_PODCAST_4 : F
+          sync_C_ACT_LISTEN_TO_PODCAST_4 : F
+          sync_F_ACT_LISTEN_TO_PODCAST_4 : F
+                             sync_NOOP_4 : F
+        mode_2_5_2_base_model0_s00000001 : F
+                         CNF_12598_12548 : F
+        mode_2_5_4_base_model0_s00000003 : T
+                         CNF_12598_12519 : F
+                         CNF_12598_12512 : F
+                         CNF_12598_12484 : F
+        mode_2_5_6_base_model0_s00000005 : F
+                         CNF_12598_12455 : F
+        mode_2_5_3_base_model0_s00000002 : F
+                         CNF_12598_12426 : F
+        mode_2_5_5_base_model0_s00000004 : F
+                         CNF_12598_12397 : F
+                         CNF_12598_12385 : T
+                         CNF_12598_12357 : F
+        mode_2_5_8_base_model0_s00000007 : F
+                         CNF_12598_12328 : F
+                         CNF_12598_12299 : F
+        mode_2_5_7_base_model0_s00000006 : F
+                         CNF_12598_12270 : F
+                         CNF_12598_12252 : F
+                         CNF_12598_12224 : F
+       mode_2_5_10_base_model0_s00000009 : F
+                         CNF_12598_12195 : F
+                         CNF_12598_12166 : F
+        mode_2_5_9_base_model0_s00000008 : F
+                         CNF_12598_12137 : F
+                         CNF_12598_12116 : F
+                         CNF_12598_12010 : F
+        mode_2_5_1_base_model0_s00000000 : F
+                         CNF_12598_12008 : F
+                         CNF_12598_12006 : F
+                         CNF_12598_12004 : T
+                         CNF_12598_12002 : F
+                         CNF_12598_12000 : F
+                         CNF_12598_11998 : F
+                         CNF_12598_11996 : F
+                         CNF_12598_12019 : T
+                         CNF_12598_12088 : F
+                         CNF_13727_13678 : F
+                            sync_GHOST_4 : F
+         mode_1_5_2_rts_model0_s00000001 : F
+                         CNF_13727_13654 : F
+        mode_1_5_18_rts_model0_s00000017 : F
+                         CNF_13727_13630 : F
+        mode_1_5_16_rts_model0_s00000015 : F
+                         CNF_13727_13606 : F
+        mode_1_5_13_rts_model0_s00000012 : F
+                         CNF_13727_13582 : F
+        mode_1_5_10_rts_model0_s00000009 : F
+                         CNF_13727_13558 : T
+         mode_1_5_7_rts_model0_s00000006 : T
+                         CNF_13727_13534 : F
+         mode_1_5_4_rts_model0_s00000003 : F
+                         CNF_13727_13510 : F
+                         CNF_13727_13485 : F
+         mode_1_5_3_rts_model0_s00000002 : F
+                         CNF_13727_13460 : F
+         mode_1_5_8_rts_model0_s00000007 : F
+                         CNF_13727_13447 : F
+                         CNF_13727_13423 : F
+                         CNF_13727_13398 : F
+                         CNF_13727_13385 : F
+                         CNF_13727_13361 : F
+         mode_1_5_6_rts_model0_s00000005 : F
+                         CNF_13727_13336 : F
+                         CNF_13727_13323 : F
+                         CNF_13727_13300 : F
+                         CNF_13727_13275 : F
+        mode_1_5_11_rts_model0_s00000010 : F
+                         CNF_13727_13262 : F
+                         CNF_13727_13238 : F
+                         CNF_13727_13213 : F
+                         CNF_13727_13200 : F
+                         CNF_13727_13176 : F
+         mode_1_5_9_rts_model0_s00000008 : F
+                         CNF_13727_13151 : F
+                         CNF_13727_13138 : F
+                         CNF_13727_13115 : F
+                         CNF_13727_13090 : F
+        mode_1_5_14_rts_model0_s00000013 : F
+                         CNF_13727_13077 : F
+                         CNF_13727_13053 : F
+                         CNF_13727_13028 : F
+                         CNF_13727_13015 : F
+                         CNF_13727_12991 : F
+        mode_1_5_12_rts_model0_s00000011 : F
+                         CNF_13727_12966 : F
+                         CNF_13727_12953 : F
+                         CNF_13727_12930 : F
+                         CNF_13727_12905 : F
+        mode_1_5_17_rts_model0_s00000016 : F
+                         CNF_13727_12892 : F
+                         CNF_13727_12868 : F
+                         CNF_13727_12843 : F
+                         CNF_13727_12830 : F
+                         CNF_13727_12806 : F
+        mode_1_5_15_rts_model0_s00000014 : F
+                         CNF_13727_12781 : F
+                         CNF_13727_12768 : F
+                         CNF_13727_12745 : F
+                         CNF_13727_12717 : F
+                         CNF_13727_12704 : F
+                         CNF_13727_12632 : F
+         mode_1_5_1_rts_model0_s00000000 : F
+                         CNF_13727_12630 : F
+                         CNF_13727_12628 : F
+                         CNF_13727_12626 : F
+                         CNF_13727_12624 : F
+                         CNF_13727_12622 : F
+                         CNF_13727_12620 : F
+                         CNF_13727_12618 : F
+                         CNF_13727_12616 : F
+                         CNF_13727_12614 : F
+                         CNF_13727_12612 : F
+                         CNF_13727_12610 : F
+                         CNF_13727_12608 : F
+                         CNF_13727_12606 : F
+                         CNF_13727_12604 : F
+                         CNF_13727_12602 : F
+                         CNF_13727_12600 : F
+                         CNF_13727_12650 : F
+                         CNF_13727_12678 : F
+                                noop_6_5 : T
+                                noop_5_5 : T
+                                noop_4_5 : F
+                                noop_3_5 : F
+                                noop_2_5 : F
+                                noop_1_5 : F
+                         CNF_15467_15464 : F
+             sync_reset_time_clock_2_1_5 : F
+                    mode_6_6_1_clock2_on : T
+                         CNF_15467_15458 : T
+                         CNF_15486_15483 : F
+             sync_reset_time_clock_3_1_5 : F
+                    mode_5_6_1_clock3_on : T
+                         CNF_15486_15477 : T
+                         CNF_15585_15575 : F
+                sync_E_UNC_OUT_OF_FUEL_5 : T
+                             sync_INIT_5 : F
+                sync_D_UNC_OUT_OF_FUEL_5 : F
+                sync_F_UNC_OUT_OF_FUEL_5 : F
+       mode_4_6_2_out_of_fuel0_s00000001 : T
+                         CNF_15585_15567 : F
+       mode_4_6_3_out_of_fuel0_s00000002 : F
+                         CNF_15585_15559 : F
+                         CNF_15585_15551 : F
+                         CNF_15585_15542 : T
+                         CNF_15585_15535 : F
+                         CNF_15585_15527 : F
+                         CNF_15585_15519 : F
+                         CNF_15585_15492 : F
+       mode_4_6_1_out_of_fuel0_s00000000 : F
+                         CNF_15585_15490 : T
+                         CNF_15585_15488 : F
+                         CNF_15585_15496 : T
+                         CNF_15585_15512 : F
+                         CNF_15685_15675 : F
+                     sync_E_UNC_ARRIVE_5 : T
+                     sync_D_UNC_ARRIVE_5 : F
+                     sync_F_UNC_ARRIVE_5 : F
+            mode_3_6_2_arrive0_s00000001 : T
+                         CNF_15685_15667 : F
+            mode_3_6_3_arrive0_s00000002 : F
+                         CNF_15685_15659 : F
+                         CNF_15685_15651 : F
+                         CNF_15685_15639 : T
+                         CNF_15685_15632 : F
+                         CNF_15685_15624 : F
+                         CNF_15685_15616 : F
+                         CNF_15685_15591 : F
+            mode_3_6_1_arrive0_s00000000 : F
+                         CNF_15685_15589 : T
+                         CNF_15685_15587 : F
+                         CNF_15685_15595 : T
+                         CNF_15685_15609 : F
+                         CNF_16439_16413 : F
+       sync_S_ACT_START_GOING_DOWNTOWN_5 : F
+       sync_C_ACT_START_GOING_DOWNTOWN_5 : F
+       sync_F_ACT_START_GOING_DOWNTOWN_5 : F
+                   sync_S_ACT_CALL_MOM_5 : F
+                   sync_C_ACT_CALL_MOM_5 : T
+                   sync_F_ACT_CALL_MOM_5 : F
+                             sync_FAIL_5 : F
+                  sync_S_ACT_SEND_TEXT_5 : F
+                  sync_C_ACT_SEND_TEXT_5 : F
+                  sync_F_ACT_SEND_TEXT_5 : F
+              sync_S_ACT_EAT_BREAKFAST_5 : F
+              sync_C_ACT_EAT_BREAKFAST_5 : F
+              sync_F_ACT_EAT_BREAKFAST_5 : F
+          sync_S_ACT_LISTEN_TO_PODCAST_5 : F
+          sync_C_ACT_LISTEN_TO_PODCAST_5 : F
+          sync_F_ACT_LISTEN_TO_PODCAST_5 : F
+                             sync_NOOP_5 : F
+        mode_2_6_2_base_model0_s00000001 : F
+                         CNF_16439_16384 : F
+        mode_2_6_4_base_model0_s00000003 : T
+                         CNF_16439_16355 : F
+                         CNF_16439_16348 : F
+                         CNF_16439_16320 : F
+        mode_2_6_6_base_model0_s00000005 : F
+                         CNF_16439_16291 : F
+        mode_2_6_3_base_model0_s00000002 : F
+                         CNF_16439_16262 : F
+        mode_2_6_5_base_model0_s00000004 : F
+                         CNF_16439_16233 : T
+                         CNF_16439_16221 : F
+                         CNF_16439_16193 : F
+        mode_2_6_8_base_model0_s00000007 : F
+                         CNF_16439_16164 : F
+                         CNF_16439_16135 : F
+        mode_2_6_7_base_model0_s00000006 : F
+                         CNF_16439_16106 : F
+                         CNF_16439_16088 : F
+                         CNF_16439_16060 : F
+       mode_2_6_10_base_model0_s00000009 : F
+                         CNF_16439_16031 : F
+                         CNF_16439_16002 : F
+        mode_2_6_9_base_model0_s00000008 : F
+                         CNF_16439_15973 : F
+                         CNF_16439_15952 : F
+                         CNF_16439_15924 : F
+       mode_2_6_12_base_model0_s00000011 : F
+                         CNF_16439_15895 : F
+                         CNF_16439_15866 : F
+       mode_2_6_11_base_model0_s00000010 : F
+                         CNF_16439_15837 : F
+                         CNF_16439_15813 : F
+                         CNF_16439_15705 : F
+        mode_2_6_1_base_model0_s00000000 : F
+                         CNF_16439_15703 : F
+                         CNF_16439_15701 : F
+                         CNF_16439_15699 : T
+                         CNF_16439_15697 : F
+                         CNF_16439_15695 : F
+                         CNF_16439_15693 : F
+                         CNF_16439_15691 : F
+                         CNF_16439_15689 : F
+                         CNF_16439_15687 : F
+                         CNF_16439_15716 : T
+                         CNF_16439_15785 : F
+                         CNF_17568_17519 : F
+                            sync_GHOST_5 : F
+         mode_1_6_2_rts_model0_s00000001 : F
+                         CNF_17568_17495 : F
+        mode_1_6_18_rts_model0_s00000017 : F
+                         CNF_17568_17471 : F
+        mode_1_6_16_rts_model0_s00000015 : F
+                         CNF_17568_17447 : F
+        mode_1_6_13_rts_model0_s00000012 : F
+                         CNF_17568_17423 : F
+        mode_1_6_10_rts_model0_s00000009 : F
+                         CNF_17568_17399 : F
+         mode_1_6_7_rts_model0_s00000006 : F
+                         CNF_17568_17375 : F
+         mode_1_6_4_rts_model0_s00000003 : F
+                         CNF_17568_17351 : F
+                         CNF_17568_17326 : F
+         mode_1_6_3_rts_model0_s00000002 : F
+                         CNF_17568_17301 : F
+         mode_1_6_8_rts_model0_s00000007 : F
+                         CNF_17568_17288 : F
+                         CNF_17568_17264 : F
+                         CNF_17568_17239 : F
+                         CNF_17568_17226 : F
+                         CNF_17568_17202 : T
+         mode_1_6_6_rts_model0_s00000005 : T
+                         CNF_17568_17177 : F
+                         CNF_17568_17164 : F
+                         CNF_17568_17141 : F
+                         CNF_17568_17116 : F
+        mode_1_6_11_rts_model0_s00000010 : F
+                         CNF_17568_17103 : F
+                         CNF_17568_17079 : F
+                         CNF_17568_17054 : F
+                         CNF_17568_17041 : F
+                         CNF_17568_17017 : F
+         mode_1_6_9_rts_model0_s00000008 : F
+                         CNF_17568_16992 : F
+                         CNF_17568_16979 : F
+                         CNF_17568_16956 : F
+                         CNF_17568_16931 : F
+        mode_1_6_14_rts_model0_s00000013 : F
+                         CNF_17568_16918 : F
+                         CNF_17568_16894 : F
+                         CNF_17568_16869 : F
+                         CNF_17568_16856 : F
+                         CNF_17568_16832 : F
+        mode_1_6_12_rts_model0_s00000011 : F
+                         CNF_17568_16807 : F
+                         CNF_17568_16794 : F
+                         CNF_17568_16771 : F
+                         CNF_17568_16746 : F
+        mode_1_6_17_rts_model0_s00000016 : F
+                         CNF_17568_16733 : F
+                         CNF_17568_16709 : F
+                         CNF_17568_16684 : F
+                         CNF_17568_16671 : F
+                         CNF_17568_16647 : F
+        mode_1_6_15_rts_model0_s00000014 : F
+                         CNF_17568_16622 : F
+                         CNF_17568_16609 : F
+                         CNF_17568_16586 : F
+                         CNF_17568_16558 : F
+                         CNF_17568_16545 : F
+                         CNF_17568_16473 : F
+         mode_1_6_1_rts_model0_s00000000 : F
+                         CNF_17568_16471 : F
+                         CNF_17568_16469 : F
+                         CNF_17568_16467 : F
+                         CNF_17568_16465 : F
+                         CNF_17568_16463 : F
+                         CNF_17568_16461 : F
+                         CNF_17568_16459 : F
+                         CNF_17568_16457 : F
+                         CNF_17568_16455 : F
+                         CNF_17568_16453 : F
+                         CNF_17568_16451 : F
+                         CNF_17568_16449 : F
+                         CNF_17568_16447 : F
+                         CNF_17568_16445 : F
+                         CNF_17568_16443 : F
+                         CNF_17568_16441 : F
+                         CNF_17568_16491 : F
+                         CNF_17568_16519 : F
+                                noop_6_6 : T
+                                noop_5_6 : T
+                                noop_4_6 : F
+                                noop_3_6 : F
+                                noop_2_6 : F
+                                noop_1_6 : F
+                         CNF_19444_19441 : F
+             sync_reset_time_clock_2_1_6 : F
+                    mode_6_7_1_clock2_on : T
+                         CNF_19444_19435 : T
+                         CNF_19463_19460 : F
+             sync_reset_time_clock_3_1_6 : F
+                    mode_5_7_1_clock3_on : T
+                         CNF_19463_19454 : T
+                         CNF_19562_19552 : F
+                sync_E_UNC_OUT_OF_FUEL_6 : T
+                             sync_INIT_6 : F
+                sync_D_UNC_OUT_OF_FUEL_6 : F
+                sync_F_UNC_OUT_OF_FUEL_6 : F
+       mode_4_7_2_out_of_fuel0_s00000001 : T
+                         CNF_19562_19544 : F
+       mode_4_7_3_out_of_fuel0_s00000002 : F
+                         CNF_19562_19536 : F
+                         CNF_19562_19528 : F
+                         CNF_19562_19519 : T
+                         CNF_19562_19512 : F
+                         CNF_19562_19504 : F
+                         CNF_19562_19496 : F
+                         CNF_19562_19469 : F
+       mode_4_7_1_out_of_fuel0_s00000000 : F
+                         CNF_19562_19467 : T
+                         CNF_19562_19465 : F
+                         CNF_19562_19473 : T
+                         CNF_19562_19489 : F
+                         CNF_19662_19652 : F
+                     sync_E_UNC_ARRIVE_6 : T
+                     sync_D_UNC_ARRIVE_6 : F
+                     sync_F_UNC_ARRIVE_6 : F
+            mode_3_7_2_arrive0_s00000001 : T
+                         CNF_19662_19644 : F
+            mode_3_7_3_arrive0_s00000002 : F
+                         CNF_19662_19636 : F
+                         CNF_19662_19628 : F
+                         CNF_19662_19616 : T
+                         CNF_19662_19609 : F
+                         CNF_19662_19601 : F
+                         CNF_19662_19593 : F
+                         CNF_19662_19568 : F
+            mode_3_7_1_arrive0_s00000000 : F
+                         CNF_19662_19566 : T
+                         CNF_19662_19564 : F
+                         CNF_19662_19572 : T
+                         CNF_19662_19586 : F
+                         CNF_20511_20482 : F
+       sync_S_ACT_START_GOING_DOWNTOWN_6 : F
+       sync_C_ACT_START_GOING_DOWNTOWN_6 : F
+       sync_F_ACT_START_GOING_DOWNTOWN_6 : F
+                   sync_S_ACT_CALL_MOM_6 : F
+                   sync_C_ACT_CALL_MOM_6 : F
+                   sync_F_ACT_CALL_MOM_6 : T
+                             sync_FAIL_6 : F
+                  sync_S_ACT_SEND_TEXT_6 : F
+                  sync_C_ACT_SEND_TEXT_6 : F
+                  sync_F_ACT_SEND_TEXT_6 : F
+              sync_S_ACT_EAT_BREAKFAST_6 : F
+              sync_C_ACT_EAT_BREAKFAST_6 : F
+              sync_F_ACT_EAT_BREAKFAST_6 : F
+          sync_S_ACT_LISTEN_TO_PODCAST_6 : F
+          sync_C_ACT_LISTEN_TO_PODCAST_6 : F
+          sync_F_ACT_LISTEN_TO_PODCAST_6 : F
+                             sync_NOOP_6 : F
+        mode_2_7_2_base_model0_s00000001 : F
+                         CNF_20511_20453 : F
+        mode_2_7_4_base_model0_s00000003 : F
+                         CNF_20511_20424 : F
+                         CNF_20511_20417 : F
+                         CNF_20511_20389 : F
+        mode_2_7_6_base_model0_s00000005 : F
+                         CNF_20511_20360 : F
+        mode_2_7_3_base_model0_s00000002 : F
+                         CNF_20511_20331 : T
+        mode_2_7_5_base_model0_s00000004 : T
+                         CNF_20511_20302 : F
+                         CNF_20511_20290 : F
+                         CNF_20511_20262 : F
+        mode_2_7_8_base_model0_s00000007 : F
+                         CNF_20511_20233 : F
+                         CNF_20511_20204 : F
+        mode_2_7_7_base_model0_s00000006 : F
+                         CNF_20511_20175 : F
+                         CNF_20511_20157 : F
+                         CNF_20511_20129 : F
+       mode_2_7_10_base_model0_s00000009 : F
+                         CNF_20511_20100 : F
+                         CNF_20511_20071 : F
+        mode_2_7_9_base_model0_s00000008 : F
+                         CNF_20511_20042 : F
+                         CNF_20511_20021 : F
+                         CNF_20511_19993 : F
+       mode_2_7_12_base_model0_s00000011 : F
+                         CNF_20511_19964 : F
+                         CNF_20511_19935 : F
+       mode_2_7_11_base_model0_s00000010 : F
+                         CNF_20511_19906 : F
+                         CNF_20511_19882 : F
+                         CNF_20511_19854 : F
+       mode_2_7_13_base_model0_s00000012 : F
+                         CNF_20511_19825 : F
+                         CNF_20511_19796 : F
+                         CNF_20511_19686 : F
+        mode_2_7_1_base_model0_s00000000 : F
+                         CNF_20511_19684 : F
+                         CNF_20511_19682 : F
+                         CNF_20511_19680 : F
+                         CNF_20511_19678 : F
+                         CNF_20511_19676 : F
+                         CNF_20511_19674 : F
+                         CNF_20511_19672 : F
+                         CNF_20511_19670 : F
+                         CNF_20511_19668 : F
+                         CNF_20511_19666 : F
+                         CNF_20511_19664 : F
+                         CNF_20511_19699 : F
+                         CNF_20511_19768 : F
+                         CNF_21640_21591 : F
+                            sync_GHOST_6 : F
+         mode_1_7_2_rts_model0_s00000001 : T
+                         CNF_21640_21567 : F
+        mode_1_7_18_rts_model0_s00000017 : F
+                         CNF_21640_21543 : F
+        mode_1_7_16_rts_model0_s00000015 : F
+                         CNF_21640_21519 : F
+        mode_1_7_13_rts_model0_s00000012 : F
+                         CNF_21640_21495 : F
+        mode_1_7_10_rts_model0_s00000009 : F
+                         CNF_21640_21471 : F
+         mode_1_7_7_rts_model0_s00000006 : F
+                         CNF_21640_21447 : F
+         mode_1_7_4_rts_model0_s00000003 : F
+                         CNF_21640_21423 : F
+                         CNF_21640_21398 : F
+         mode_1_7_3_rts_model0_s00000002 : F
+                         CNF_21640_21373 : F
+         mode_1_7_8_rts_model0_s00000007 : F
+                         CNF_21640_21360 : F
+                         CNF_21640_21336 : T
+                         CNF_21640_21311 : F
+                         CNF_21640_21298 : F
+                         CNF_21640_21274 : F
+         mode_1_7_6_rts_model0_s00000005 : F
+                         CNF_21640_21249 : F
+                         CNF_21640_21236 : F
+                         CNF_21640_21213 : F
+                         CNF_21640_21188 : F
+        mode_1_7_11_rts_model0_s00000010 : F
+                         CNF_21640_21175 : F
+                         CNF_21640_21151 : F
+                         CNF_21640_21126 : F
+                         CNF_21640_21113 : F
+                         CNF_21640_21089 : F
+         mode_1_7_9_rts_model0_s00000008 : F
+                         CNF_21640_21064 : F
+                         CNF_21640_21051 : F
+                         CNF_21640_21028 : F
+                         CNF_21640_21003 : F
+        mode_1_7_14_rts_model0_s00000013 : F
+                         CNF_21640_20990 : F
+                         CNF_21640_20966 : F
+                         CNF_21640_20941 : F
+                         CNF_21640_20928 : F
+                         CNF_21640_20904 : F
+        mode_1_7_12_rts_model0_s00000011 : F
+                         CNF_21640_20879 : F
+                         CNF_21640_20866 : F
+                         CNF_21640_20843 : F
+                         CNF_21640_20818 : F
+        mode_1_7_17_rts_model0_s00000016 : F
+                         CNF_21640_20805 : F
+                         CNF_21640_20781 : F
+                         CNF_21640_20756 : F
+                         CNF_21640_20743 : F
+                         CNF_21640_20719 : F
+        mode_1_7_15_rts_model0_s00000014 : F
+                         CNF_21640_20694 : F
+                         CNF_21640_20681 : F
+                         CNF_21640_20658 : F
+                         CNF_21640_20630 : F
+                         CNF_21640_20617 : F
+                         CNF_21640_20545 : F
+         mode_1_7_1_rts_model0_s00000000 : F
+                         CNF_21640_20543 : F
+                         CNF_21640_20541 : F
+                         CNF_21640_20539 : F
+                         CNF_21640_20537 : F
+                         CNF_21640_20535 : F
+                         CNF_21640_20533 : F
+                         CNF_21640_20531 : F
+                         CNF_21640_20529 : F
+                         CNF_21640_20527 : F
+                         CNF_21640_20525 : F
+                         CNF_21640_20523 : F
+                         CNF_21640_20521 : F
+                         CNF_21640_20519 : F
+                         CNF_21640_20517 : F
+                         CNF_21640_20515 : F
+                         CNF_21640_20513 : F
+                         CNF_21640_20563 : F
+                         CNF_21640_20591 : F
+                                noop_6_7 : T
+                                noop_5_7 : T
+                                noop_4_7 : F
+                                noop_3_7 : F
+                                noop_2_7 : F
+                                noop_1_7 : F
+                         CNF_23590_23587 : F
+             sync_reset_time_clock_2_1_7 : F
+                    mode_6_8_1_clock2_on : T
+                         CNF_23590_23581 : T
+                         CNF_23609_23606 : F
+             sync_reset_time_clock_3_1_7 : F
+                    mode_5_8_1_clock3_on : T
+                         CNF_23609_23600 : T
+                         CNF_23708_23698 : F
+                sync_E_UNC_OUT_OF_FUEL_7 : T
+                             sync_INIT_7 : F
+                sync_D_UNC_OUT_OF_FUEL_7 : F
+                sync_F_UNC_OUT_OF_FUEL_7 : F
+       mode_4_8_2_out_of_fuel0_s00000001 : T
+                         CNF_23708_23690 : F
+       mode_4_8_3_out_of_fuel0_s00000002 : F
+                         CNF_23708_23682 : F
+                         CNF_23708_23674 : F
+                         CNF_23708_23665 : T
+                         CNF_23708_23658 : F
+                         CNF_23708_23650 : F
+                         CNF_23708_23642 : F
+                         CNF_23708_23615 : F
+       mode_4_8_1_out_of_fuel0_s00000000 : F
+                         CNF_23708_23613 : T
+                         CNF_23708_23611 : F
+                         CNF_23708_23619 : T
+                         CNF_23708_23635 : F
+                         CNF_23808_23798 : F
+                     sync_E_UNC_ARRIVE_7 : T
+                     sync_D_UNC_ARRIVE_7 : F
+                     sync_F_UNC_ARRIVE_7 : F
+            mode_3_8_2_arrive0_s00000001 : T
+                         CNF_23808_23790 : F
+            mode_3_8_3_arrive0_s00000002 : F
+                         CNF_23808_23782 : F
+                         CNF_23808_23774 : F
+                         CNF_23808_23762 : T
+                         CNF_23808_23755 : F
+                         CNF_23808_23747 : F
+                         CNF_23808_23739 : F
+                         CNF_23808_23714 : F
+            mode_3_8_1_arrive0_s00000000 : F
+                         CNF_23808_23712 : T
+                         CNF_23808_23710 : F
+                         CNF_23808_23718 : T
+                         CNF_23808_23732 : F
+                         CNF_24660_24631 : F
+       sync_S_ACT_START_GOING_DOWNTOWN_7 : F
+       sync_C_ACT_START_GOING_DOWNTOWN_7 : F
+       sync_F_ACT_START_GOING_DOWNTOWN_7 : F
+                   sync_S_ACT_CALL_MOM_7 : F
+                   sync_C_ACT_CALL_MOM_7 : F
+                   sync_F_ACT_CALL_MOM_7 : F
+                             sync_FAIL_7 : F
+                  sync_S_ACT_SEND_TEXT_7 : T
+                  sync_C_ACT_SEND_TEXT_7 : F
+                  sync_F_ACT_SEND_TEXT_7 : F
+              sync_S_ACT_EAT_BREAKFAST_7 : F
+              sync_C_ACT_EAT_BREAKFAST_7 : F
+              sync_F_ACT_EAT_BREAKFAST_7 : F
+          sync_S_ACT_LISTEN_TO_PODCAST_7 : F
+          sync_C_ACT_LISTEN_TO_PODCAST_7 : F
+          sync_F_ACT_LISTEN_TO_PODCAST_7 : F
+                             sync_NOOP_7 : F
+        mode_2_8_2_base_model0_s00000001 : F
+                         CNF_24660_24602 : F
+        mode_2_8_4_base_model0_s00000003 : F
+                         CNF_24660_24573 : F
+                         CNF_24660_24566 : F
+                         CNF_24660_24538 : F
+        mode_2_8_6_base_model0_s00000005 : F
+                         CNF_24660_24509 : F
+        mode_2_8_3_base_model0_s00000002 : F
+                         CNF_24660_24480 : F
+        mode_2_8_5_base_model0_s00000004 : T
+                         CNF_24660_24451 : F
+                         CNF_24660_24439 : F
+                         CNF_24660_24411 : F
+        mode_2_8_8_base_model0_s00000007 : F
+                         CNF_24660_24382 : F
+                         CNF_24660_24353 : F
+        mode_2_8_7_base_model0_s00000006 : F
+                         CNF_24660_24324 : F
+                         CNF_24660_24306 : T
+                         CNF_24660_24278 : F
+       mode_2_8_10_base_model0_s00000009 : F
+                         CNF_24660_24249 : F
+                         CNF_24660_24220 : F
+        mode_2_8_9_base_model0_s00000008 : F
+                         CNF_24660_24191 : F
+                         CNF_24660_24170 : F
+                         CNF_24660_24142 : F
+       mode_2_8_12_base_model0_s00000011 : F
+                         CNF_24660_24113 : F
+                         CNF_24660_24084 : F
+       mode_2_8_11_base_model0_s00000010 : F
+                         CNF_24660_24055 : F
+                         CNF_24660_24031 : F
+                         CNF_24660_24003 : F
+       mode_2_8_13_base_model0_s00000012 : F
+                         CNF_24660_23974 : F
+                         CNF_24660_23945 : F
+                         CNF_24660_23834 : F
+        mode_2_8_1_base_model0_s00000000 : F
+                         CNF_24660_23832 : F
+                         CNF_24660_23830 : F
+                         CNF_24660_23828 : F
+                         CNF_24660_23826 : T
+                         CNF_24660_23824 : F
+                         CNF_24660_23822 : F
+                         CNF_24660_23820 : F
+                         CNF_24660_23818 : F
+                         CNF_24660_23816 : F
+                         CNF_24660_23814 : F
+                         CNF_24660_23812 : F
+                         CNF_24660_23810 : F
+                         CNF_24660_23848 : T
+                         CNF_24660_23917 : F
+                         CNF_25789_25740 : F
+                            sync_GHOST_7 : F
+         mode_1_8_2_rts_model0_s00000001 : F
+                         CNF_25789_25716 : F
+        mode_1_8_18_rts_model0_s00000017 : F
+                         CNF_25789_25692 : F
+        mode_1_8_16_rts_model0_s00000015 : F
+                         CNF_25789_25668 : F
+        mode_1_8_13_rts_model0_s00000012 : F
+                         CNF_25789_25644 : T
+        mode_1_8_10_rts_model0_s00000009 : T
+                         CNF_25789_25620 : F
+         mode_1_8_7_rts_model0_s00000006 : F
+                         CNF_25789_25596 : F
+         mode_1_8_4_rts_model0_s00000003 : F
+                         CNF_25789_25572 : F
+                         CNF_25789_25547 : F
+         mode_1_8_3_rts_model0_s00000002 : F
+                         CNF_25789_25522 : F
+         mode_1_8_8_rts_model0_s00000007 : F
+                         CNF_25789_25509 : F
+                         CNF_25789_25485 : F
+                         CNF_25789_25460 : F
+                         CNF_25789_25447 : F
+                         CNF_25789_25423 : F
+         mode_1_8_6_rts_model0_s00000005 : F
+                         CNF_25789_25398 : F
+                         CNF_25789_25385 : F
+                         CNF_25789_25362 : F
+                         CNF_25789_25337 : F
+        mode_1_8_11_rts_model0_s00000010 : F
+                         CNF_25789_25324 : F
+                         CNF_25789_25300 : F
+                         CNF_25789_25275 : F
+                         CNF_25789_25262 : F
+                         CNF_25789_25238 : F
+         mode_1_8_9_rts_model0_s00000008 : F
+                         CNF_25789_25213 : F
+                         CNF_25789_25200 : F
+                         CNF_25789_25177 : F
+                         CNF_25789_25152 : F
+        mode_1_8_14_rts_model0_s00000013 : F
+                         CNF_25789_25139 : F
+                         CNF_25789_25115 : F
+                         CNF_25789_25090 : F
+                         CNF_25789_25077 : F
+                         CNF_25789_25053 : F
+        mode_1_8_12_rts_model0_s00000011 : F
+                         CNF_25789_25028 : F
+                         CNF_25789_25015 : F
+                         CNF_25789_24992 : F
+                         CNF_25789_24967 : F
+        mode_1_8_17_rts_model0_s00000016 : F
+                         CNF_25789_24954 : F
+                         CNF_25789_24930 : F
+                         CNF_25789_24905 : F
+                         CNF_25789_24892 : F
+                         CNF_25789_24868 : F
+        mode_1_8_15_rts_model0_s00000014 : F
+                         CNF_25789_24843 : F
+                         CNF_25789_24830 : F
+                         CNF_25789_24807 : F
+                         CNF_25789_24779 : F
+                         CNF_25789_24766 : F
+                         CNF_25789_24694 : F
+         mode_1_8_1_rts_model0_s00000000 : F
+                         CNF_25789_24692 : F
+                         CNF_25789_24690 : F
+                         CNF_25789_24688 : F
+                         CNF_25789_24686 : F
+                         CNF_25789_24684 : F
+                         CNF_25789_24682 : F
+                         CNF_25789_24680 : F
+                         CNF_25789_24678 : F
+                         CNF_25789_24676 : F
+                         CNF_25789_24674 : F
+                         CNF_25789_24672 : F
+                         CNF_25789_24670 : F
+                         CNF_25789_24668 : F
+                         CNF_25789_24666 : F
+                         CNF_25789_24664 : F
+                         CNF_25789_24662 : F
+                         CNF_25789_24712 : F
+                         CNF_25789_24740 : F
+                                noop_6_8 : T
+                                noop_5_8 : T
+                                noop_4_8 : F
+                                noop_3_8 : F
+                                noop_2_8 : F
+                                noop_1_8 : F
+                         CNF_27739_27736 : F
+             sync_reset_time_clock_2_1_8 : F
+                    mode_6_9_1_clock2_on : T
+                         CNF_27739_27730 : T
+                         CNF_27758_27755 : F
+             sync_reset_time_clock_3_1_8 : F
+                    mode_5_9_1_clock3_on : T
+                         CNF_27758_27749 : T
+                         CNF_27857_27847 : F
+                sync_E_UNC_OUT_OF_FUEL_8 : T
+                             sync_INIT_8 : F
+                sync_D_UNC_OUT_OF_FUEL_8 : F
+                sync_F_UNC_OUT_OF_FUEL_8 : F
+       mode_4_9_2_out_of_fuel0_s00000001 : T
+                         CNF_27857_27839 : F
+       mode_4_9_3_out_of_fuel0_s00000002 : F
+                         CNF_27857_27831 : F
+                         CNF_27857_27823 : F
+                         CNF_27857_27814 : T
+                         CNF_27857_27807 : F
+                         CNF_27857_27799 : F
+                         CNF_27857_27791 : F
+                         CNF_27857_27764 : F
+       mode_4_9_1_out_of_fuel0_s00000000 : F
+                         CNF_27857_27762 : T
+                         CNF_27857_27760 : F
+                         CNF_27857_27768 : T
+                         CNF_27857_27784 : F
+                         CNF_27957_27947 : F
+                     sync_E_UNC_ARRIVE_8 : T
+                     sync_D_UNC_ARRIVE_8 : F
+                     sync_F_UNC_ARRIVE_8 : F
+            mode_3_9_2_arrive0_s00000001 : T
+                         CNF_27957_27939 : F
+            mode_3_9_3_arrive0_s00000002 : F
+                         CNF_27957_27931 : F
+                         CNF_27957_27923 : F
+                         CNF_27957_27911 : T
+                         CNF_27957_27904 : F
+                         CNF_27957_27896 : F
+                         CNF_27957_27888 : F
+                         CNF_27957_27863 : F
+            mode_3_9_1_arrive0_s00000000 : F
+                         CNF_27957_27861 : T
+                         CNF_27957_27859 : F
+                         CNF_27957_27867 : T
+                         CNF_27957_27881 : F
+                         CNF_28809_28780 : F
+       sync_S_ACT_START_GOING_DOWNTOWN_8 : F
+       sync_C_ACT_START_GOING_DOWNTOWN_8 : F
+       sync_F_ACT_START_GOING_DOWNTOWN_8 : F
+                   sync_S_ACT_CALL_MOM_8 : F
+                   sync_C_ACT_CALL_MOM_8 : F
+                   sync_F_ACT_CALL_MOM_8 : F
+                             sync_FAIL_8 : F
+                  sync_S_ACT_SEND_TEXT_8 : F
+                  sync_C_ACT_SEND_TEXT_8 : T
+                  sync_F_ACT_SEND_TEXT_8 : F
+              sync_S_ACT_EAT_BREAKFAST_8 : F
+              sync_C_ACT_EAT_BREAKFAST_8 : F
+              sync_F_ACT_EAT_BREAKFAST_8 : F
+          sync_S_ACT_LISTEN_TO_PODCAST_8 : F
+          sync_C_ACT_LISTEN_TO_PODCAST_8 : F
+          sync_F_ACT_LISTEN_TO_PODCAST_8 : F
+                             sync_NOOP_8 : F
+        mode_2_9_2_base_model0_s00000001 : F
+                         CNF_28809_28751 : F
+        mode_2_9_4_base_model0_s00000003 : F
+                         CNF_28809_28722 : F
+                         CNF_28809_28715 : F
+                         CNF_28809_28687 : F
+        mode_2_9_6_base_model0_s00000005 : F
+                         CNF_28809_28658 : F
+        mode_2_9_3_base_model0_s00000002 : F
+                         CNF_28809_28629 : F
+        mode_2_9_5_base_model0_s00000004 : T
+                         CNF_28809_28600 : F
+                         CNF_28809_28588 : F
+                         CNF_28809_28560 : F
+        mode_2_9_8_base_model0_s00000007 : F
+                         CNF_28809_28531 : F
+                         CNF_28809_28502 : F
+        mode_2_9_7_base_model0_s00000006 : F
+                         CNF_28809_28473 : T
+                         CNF_28809_28455 : F
+                         CNF_28809_28427 : F
+       mode_2_9_10_base_model0_s00000009 : F
+                         CNF_28809_28398 : F
+                         CNF_28809_28369 : F
+        mode_2_9_9_base_model0_s00000008 : F
+                         CNF_28809_28340 : F
+                         CNF_28809_28319 : F
+                         CNF_28809_28291 : F
+       mode_2_9_12_base_model0_s00000011 : F
+                         CNF_28809_28262 : F
+                         CNF_28809_28233 : F
+       mode_2_9_11_base_model0_s00000010 : F
+                         CNF_28809_28204 : F
+                         CNF_28809_28180 : F
+                         CNF_28809_28152 : F
+       mode_2_9_13_base_model0_s00000012 : F
+                         CNF_28809_28123 : F
+                         CNF_28809_28094 : F
+                         CNF_28809_27983 : F
+        mode_2_9_1_base_model0_s00000000 : F
+                         CNF_28809_27981 : F
+                         CNF_28809_27979 : F
+                         CNF_28809_27977 : F
+                         CNF_28809_27975 : T
+                         CNF_28809_27973 : F
+                         CNF_28809_27971 : F
+                         CNF_28809_27969 : F
+                         CNF_28809_27967 : F
+                         CNF_28809_27965 : F
+                         CNF_28809_27963 : F
+                         CNF_28809_27961 : F
+                         CNF_28809_27959 : F
+                         CNF_28809_27997 : T
+                         CNF_28809_28066 : F
+                         CNF_29938_29889 : F
+                            sync_GHOST_8 : F
+         mode_1_9_2_rts_model0_s00000001 : F
+                         CNF_29938_29865 : F
+        mode_1_9_18_rts_model0_s00000017 : F
+                         CNF_29938_29841 : F
+        mode_1_9_16_rts_model0_s00000015 : F
+                         CNF_29938_29817 : F
+        mode_1_9_13_rts_model0_s00000012 : F
+                         CNF_29938_29793 : F
+        mode_1_9_10_rts_model0_s00000009 : F
+                         CNF_29938_29769 : F
+         mode_1_9_7_rts_model0_s00000006 : F
+                         CNF_29938_29745 : F
+         mode_1_9_4_rts_model0_s00000003 : F
+                         CNF_29938_29721 : F
+                         CNF_29938_29696 : F
+         mode_1_9_3_rts_model0_s00000002 : F
+                         CNF_29938_29671 : F
+         mode_1_9_8_rts_model0_s00000007 : F
+                         CNF_29938_29658 : F
+                         CNF_29938_29634 : F
+                         CNF_29938_29609 : F
+                         CNF_29938_29596 : F
+                         CNF_29938_29572 : F
+         mode_1_9_6_rts_model0_s00000005 : F
+                         CNF_29938_29547 : F
+                         CNF_29938_29534 : F
+                         CNF_29938_29511 : F
+                         CNF_29938_29486 : F
+        mode_1_9_11_rts_model0_s00000010 : F
+                         CNF_29938_29473 : F
+                         CNF_29938_29449 : F
+                         CNF_29938_29424 : F
+                         CNF_29938_29411 : F
+                         CNF_29938_29387 : T
+         mode_1_9_9_rts_model0_s00000008 : T
+                         CNF_29938_29362 : F
+                         CNF_29938_29349 : F
+                         CNF_29938_29326 : F
+                         CNF_29938_29301 : F
+        mode_1_9_14_rts_model0_s00000013 : F
+                         CNF_29938_29288 : F
+                         CNF_29938_29264 : F
+                         CNF_29938_29239 : F
+                         CNF_29938_29226 : F
+                         CNF_29938_29202 : F
+        mode_1_9_12_rts_model0_s00000011 : F
+                         CNF_29938_29177 : F
+                         CNF_29938_29164 : F
+                         CNF_29938_29141 : F
+                         CNF_29938_29116 : F
+        mode_1_9_17_rts_model0_s00000016 : F
+                         CNF_29938_29103 : F
+                         CNF_29938_29079 : F
+                         CNF_29938_29054 : F
+                         CNF_29938_29041 : F
+                         CNF_29938_29017 : F
+        mode_1_9_15_rts_model0_s00000014 : F
+                         CNF_29938_28992 : F
+                         CNF_29938_28979 : F
+                         CNF_29938_28956 : F
+                         CNF_29938_28928 : F
+                         CNF_29938_28915 : F
+                         CNF_29938_28843 : F
+         mode_1_9_1_rts_model0_s00000000 : F
+                         CNF_29938_28841 : F
+                         CNF_29938_28839 : F
+                         CNF_29938_28837 : F
+                         CNF_29938_28835 : F
+                         CNF_29938_28833 : F
+                         CNF_29938_28831 : F
+                         CNF_29938_28829 : F
+                         CNF_29938_28827 : F
+                         CNF_29938_28825 : F
+                         CNF_29938_28823 : F
+                         CNF_29938_28821 : F
+                         CNF_29938_28819 : F
+                         CNF_29938_28817 : F
+                         CNF_29938_28815 : F
+                         CNF_29938_28813 : F
+                         CNF_29938_28811 : F
+                         CNF_29938_28861 : F
+                         CNF_29938_28889 : F
+                                noop_6_9 : T
+                                noop_5_9 : T
+                                noop_4_9 : F
+                                noop_3_9 : F
+                                noop_2_9 : F
+                                noop_1_9 : F
+                         CNF_31888_31885 : F
+             sync_reset_time_clock_2_1_9 : F
+                   mode_6_10_1_clock2_on : T
+                         CNF_31888_31879 : T
+                         CNF_31907_31904 : F
+             sync_reset_time_clock_3_1_9 : F
+                   mode_5_10_1_clock3_on : T
+                         CNF_31907_31898 : T
+                         CNF_32006_31996 : F
+                sync_E_UNC_OUT_OF_FUEL_9 : T
+                             sync_INIT_9 : F
+                sync_D_UNC_OUT_OF_FUEL_9 : F
+                sync_F_UNC_OUT_OF_FUEL_9 : F
+      mode_4_10_2_out_of_fuel0_s00000001 : T
+                         CNF_32006_31988 : F
+      mode_4_10_3_out_of_fuel0_s00000002 : F
+                         CNF_32006_31980 : F
+                         CNF_32006_31972 : F
+                         CNF_32006_31963 : T
+                         CNF_32006_31956 : F
+                         CNF_32006_31948 : F
+                         CNF_32006_31940 : F
+                         CNF_32006_31913 : F
+      mode_4_10_1_out_of_fuel0_s00000000 : F
+                         CNF_32006_31911 : T
+                         CNF_32006_31909 : F
+                         CNF_32006_31917 : T
+                         CNF_32006_31933 : F
+                         CNF_32106_32096 : F
+                     sync_E_UNC_ARRIVE_9 : T
+                     sync_D_UNC_ARRIVE_9 : F
+                     sync_F_UNC_ARRIVE_9 : F
+           mode_3_10_2_arrive0_s00000001 : T
+                         CNF_32106_32088 : F
+           mode_3_10_3_arrive0_s00000002 : F
+                         CNF_32106_32080 : F
+                         CNF_32106_32072 : F
+                         CNF_32106_32060 : T
+                         CNF_32106_32053 : F
+                         CNF_32106_32045 : F
+                         CNF_32106_32037 : F
+                         CNF_32106_32012 : F
+           mode_3_10_1_arrive0_s00000000 : F
+                         CNF_32106_32010 : T
+                         CNF_32106_32008 : F
+                         CNF_32106_32016 : T
+                         CNF_32106_32030 : F
+                         CNF_32958_32929 : F
+       sync_S_ACT_START_GOING_DOWNTOWN_9 : F
+       sync_C_ACT_START_GOING_DOWNTOWN_9 : F
+       sync_F_ACT_START_GOING_DOWNTOWN_9 : F
+                   sync_S_ACT_CALL_MOM_9 : F
+                   sync_C_ACT_CALL_MOM_9 : F
+                   sync_F_ACT_CALL_MOM_9 : F
+                             sync_FAIL_9 : F
+                  sync_S_ACT_SEND_TEXT_9 : F
+                  sync_C_ACT_SEND_TEXT_9 : F
+                  sync_F_ACT_SEND_TEXT_9 : T
+              sync_S_ACT_EAT_BREAKFAST_9 : F
+              sync_C_ACT_EAT_BREAKFAST_9 : F
+              sync_F_ACT_EAT_BREAKFAST_9 : F
+          sync_S_ACT_LISTEN_TO_PODCAST_9 : F
+          sync_C_ACT_LISTEN_TO_PODCAST_9 : F
+          sync_F_ACT_LISTEN_TO_PODCAST_9 : F
+                             sync_NOOP_9 : F
+       mode_2_10_2_base_model0_s00000001 : F
+                         CNF_32958_32900 : F
+       mode_2_10_4_base_model0_s00000003 : F
+                         CNF_32958_32871 : F
+                         CNF_32958_32864 : F
+                         CNF_32958_32836 : F
+       mode_2_10_6_base_model0_s00000005 : F
+                         CNF_32958_32807 : F
+       mode_2_10_3_base_model0_s00000002 : F
+                         CNF_32958_32778 : F
+       mode_2_10_5_base_model0_s00000004 : F
+                         CNF_32958_32749 : F
+                         CNF_32958_32737 : F
+                         CNF_32958_32709 : F
+       mode_2_10_8_base_model0_s00000007 : F
+                         CNF_32958_32680 : F
+                         CNF_32958_32651 : T
+       mode_2_10_7_base_model0_s00000006 : T
+                         CNF_32958_32622 : F
+                         CNF_32958_32604 : F
+                         CNF_32958_32576 : F
+      mode_2_10_10_base_model0_s00000009 : F
+                         CNF_32958_32547 : F
+                         CNF_32958_32518 : F
+       mode_2_10_9_base_model0_s00000008 : F
+                         CNF_32958_32489 : F
+                         CNF_32958_32468 : F
+                         CNF_32958_32440 : F
+      mode_2_10_12_base_model0_s00000011 : F
+                         CNF_32958_32411 : F
+                         CNF_32958_32382 : F
+      mode_2_10_11_base_model0_s00000010 : F
+                         CNF_32958_32353 : F
+                         CNF_32958_32329 : F
+                         CNF_32958_32301 : F
+      mode_2_10_13_base_model0_s00000012 : F
+                         CNF_32958_32272 : F
+                         CNF_32958_32243 : F
+                         CNF_32958_32132 : F
+       mode_2_10_1_base_model0_s00000000 : F
+                         CNF_32958_32130 : F
+                         CNF_32958_32128 : F
+                         CNF_32958_32126 : F
+                         CNF_32958_32124 : F
+                         CNF_32958_32122 : F
+                         CNF_32958_32120 : F
+                         CNF_32958_32118 : F
+                         CNF_32958_32116 : F
+                         CNF_32958_32114 : F
+                         CNF_32958_32112 : F
+                         CNF_32958_32110 : F
+                         CNF_32958_32108 : F
+                         CNF_32958_32146 : F
+                         CNF_32958_32215 : F
+                         CNF_34087_34038 : F
+                            sync_GHOST_9 : F
+        mode_1_10_2_rts_model0_s00000001 : T
+                         CNF_34087_34014 : F
+       mode_1_10_18_rts_model0_s00000017 : F
+                         CNF_34087_33990 : F
+       mode_1_10_16_rts_model0_s00000015 : F
+                         CNF_34087_33966 : F
+       mode_1_10_13_rts_model0_s00000012 : F
+                         CNF_34087_33942 : F
+       mode_1_10_10_rts_model0_s00000009 : F
+                         CNF_34087_33918 : F
+        mode_1_10_7_rts_model0_s00000006 : F
+                         CNF_34087_33894 : F
+        mode_1_10_4_rts_model0_s00000003 : F
+                         CNF_34087_33870 : F
+                         CNF_34087_33845 : F
+        mode_1_10_3_rts_model0_s00000002 : F
+                         CNF_34087_33820 : F
+        mode_1_10_8_rts_model0_s00000007 : F
+                         CNF_34087_33807 : F
+                         CNF_34087_33783 : F
+                         CNF_34087_33758 : F
+                         CNF_34087_33745 : F
+                         CNF_34087_33721 : F
+        mode_1_10_6_rts_model0_s00000005 : F
+                         CNF_34087_33696 : F
+                         CNF_34087_33683 : F
+                         CNF_34087_33660 : F
+                         CNF_34087_33635 : F
+       mode_1_10_11_rts_model0_s00000010 : F
+                         CNF_34087_33622 : F
+                         CNF_34087_33598 : T
+                         CNF_34087_33573 : F
+                         CNF_34087_33560 : F
+                         CNF_34087_33536 : F
+        mode_1_10_9_rts_model0_s00000008 : F
+                         CNF_34087_33511 : F
+                         CNF_34087_33498 : F
+                         CNF_34087_33475 : F
+                         CNF_34087_33450 : F
+       mode_1_10_14_rts_model0_s00000013 : F
+                         CNF_34087_33437 : F
+                         CNF_34087_33413 : F
+                         CNF_34087_33388 : F
+                         CNF_34087_33375 : F
+                         CNF_34087_33351 : F
+       mode_1_10_12_rts_model0_s00000011 : F
+                         CNF_34087_33326 : F
+                         CNF_34087_33313 : F
+                         CNF_34087_33290 : F
+                         CNF_34087_33265 : F
+       mode_1_10_17_rts_model0_s00000016 : F
+                         CNF_34087_33252 : F
+                         CNF_34087_33228 : F
+                         CNF_34087_33203 : F
+                         CNF_34087_33190 : F
+                         CNF_34087_33166 : F
+       mode_1_10_15_rts_model0_s00000014 : F
+                         CNF_34087_33141 : F
+                         CNF_34087_33128 : F
+                         CNF_34087_33105 : F
+                         CNF_34087_33077 : F
+                         CNF_34087_33064 : F
+                         CNF_34087_32992 : F
+        mode_1_10_1_rts_model0_s00000000 : F
+                         CNF_34087_32990 : F
+                         CNF_34087_32988 : F
+                         CNF_34087_32986 : F
+                         CNF_34087_32984 : F
+                         CNF_34087_32982 : F
+                         CNF_34087_32980 : F
+                         CNF_34087_32978 : F
+                         CNF_34087_32976 : F
+                         CNF_34087_32974 : F
+                         CNF_34087_32972 : F
+                         CNF_34087_32970 : F
+                         CNF_34087_32968 : F
+                         CNF_34087_32966 : F
+                         CNF_34087_32964 : F
+                         CNF_34087_32962 : F
+                         CNF_34087_32960 : F
+                         CNF_34087_33010 : F
+                         CNF_34087_33038 : F
+                               noop_6_10 : T
+                               noop_5_10 : T
+                               noop_4_10 : F
+                               noop_3_10 : F
+                               noop_2_10 : F
+                               noop_1_10 : F
+                         CNF_36037_36034 : F
+            sync_reset_time_clock_2_1_10 : F
+                   mode_6_11_1_clock2_on : T
+                         CNF_36037_36028 : T
+                         CNF_36056_36053 : F
+            sync_reset_time_clock_3_1_10 : F
+                   mode_5_11_1_clock3_on : T
+                         CNF_36056_36047 : T
+                         CNF_36155_36145 : F
+               sync_E_UNC_OUT_OF_FUEL_10 : T
+                            sync_INIT_10 : F
+               sync_D_UNC_OUT_OF_FUEL_10 : F
+               sync_F_UNC_OUT_OF_FUEL_10 : F
+      mode_4_11_2_out_of_fuel0_s00000001 : T
+                         CNF_36155_36137 : F
+      mode_4_11_3_out_of_fuel0_s00000002 : F
+                         CNF_36155_36129 : F
+                         CNF_36155_36121 : F
+                         CNF_36155_36112 : T
+                         CNF_36155_36105 : F
+                         CNF_36155_36097 : F
+                         CNF_36155_36089 : F
+                         CNF_36155_36062 : F
+      mode_4_11_1_out_of_fuel0_s00000000 : F
+                         CNF_36155_36060 : T
+                         CNF_36155_36058 : F
+                         CNF_36155_36066 : T
+                         CNF_36155_36082 : F
+                         CNF_36255_36245 : F
+                    sync_E_UNC_ARRIVE_10 : T
+                    sync_D_UNC_ARRIVE_10 : F
+                    sync_F_UNC_ARRIVE_10 : F
+           mode_3_11_2_arrive0_s00000001 : T
+                         CNF_36255_36237 : F
+           mode_3_11_3_arrive0_s00000002 : F
+                         CNF_36255_36229 : F
+                         CNF_36255_36221 : F
+                         CNF_36255_36209 : T
+                         CNF_36255_36202 : F
+                         CNF_36255_36194 : F
+                         CNF_36255_36186 : F
+                         CNF_36255_36161 : F
+           mode_3_11_1_arrive0_s00000000 : F
+                         CNF_36255_36159 : T
+                         CNF_36255_36157 : F
+                         CNF_36255_36165 : T
+                         CNF_36255_36179 : F
+                         CNF_37107_37078 : F
+      sync_S_ACT_START_GOING_DOWNTOWN_10 : F
+      sync_C_ACT_START_GOING_DOWNTOWN_10 : F
+      sync_F_ACT_START_GOING_DOWNTOWN_10 : F
+                  sync_S_ACT_CALL_MOM_10 : F
+                  sync_C_ACT_CALL_MOM_10 : F
+                  sync_F_ACT_CALL_MOM_10 : F
+                            sync_FAIL_10 : F
+                 sync_S_ACT_SEND_TEXT_10 : F
+                 sync_C_ACT_SEND_TEXT_10 : F
+                 sync_F_ACT_SEND_TEXT_10 : F
+             sync_S_ACT_EAT_BREAKFAST_10 : T
+             sync_C_ACT_EAT_BREAKFAST_10 : F
+             sync_F_ACT_EAT_BREAKFAST_10 : F
+         sync_S_ACT_LISTEN_TO_PODCAST_10 : F
+         sync_C_ACT_LISTEN_TO_PODCAST_10 : F
+         sync_F_ACT_LISTEN_TO_PODCAST_10 : F
+                            sync_NOOP_10 : F
+       mode_2_11_2_base_model0_s00000001 : F
+                         CNF_37107_37049 : F
+       mode_2_11_4_base_model0_s00000003 : F
+                         CNF_37107_37020 : F
+                         CNF_37107_37013 : F
+                         CNF_37107_36985 : F
+       mode_2_11_6_base_model0_s00000005 : F
+                         CNF_37107_36956 : F
+       mode_2_11_3_base_model0_s00000002 : F
+                         CNF_37107_36927 : F
+       mode_2_11_5_base_model0_s00000004 : F
+                         CNF_37107_36898 : F
+                         CNF_37107_36886 : F
+                         CNF_37107_36858 : F
+       mode_2_11_8_base_model0_s00000007 : F
+                         CNF_37107_36829 : F
+                         CNF_37107_36800 : F
+       mode_2_11_7_base_model0_s00000006 : T
+                         CNF_37107_36771 : F
+                         CNF_37107_36753 : F
+                         CNF_37107_36725 : F
+      mode_2_11_10_base_model0_s00000009 : F
+                         CNF_37107_36696 : F
+                         CNF_37107_36667 : F
+       mode_2_11_9_base_model0_s00000008 : F
+                         CNF_37107_36638 : F
+                         CNF_37107_36617 : T
+                         CNF_37107_36589 : F
+      mode_2_11_12_base_model0_s00000011 : F
+                         CNF_37107_36560 : F
+                         CNF_37107_36531 : F
+      mode_2_11_11_base_model0_s00000010 : F
+                         CNF_37107_36502 : F
+                         CNF_37107_36478 : F
+                         CNF_37107_36450 : F
+      mode_2_11_13_base_model0_s00000012 : F
+                         CNF_37107_36421 : F
+                         CNF_37107_36392 : F
+                         CNF_37107_36281 : F
+       mode_2_11_1_base_model0_s00000000 : F
+                         CNF_37107_36279 : F
+                         CNF_37107_36277 : F
+                         CNF_37107_36275 : F
+                         CNF_37107_36273 : F
+                         CNF_37107_36271 : F
+                         CNF_37107_36269 : T
+                         CNF_37107_36267 : F
+                         CNF_37107_36265 : F
+                         CNF_37107_36263 : F
+                         CNF_37107_36261 : F
+                         CNF_37107_36259 : F
+                         CNF_37107_36257 : F
+                         CNF_37107_36295 : T
+                         CNF_37107_36364 : F
+                         CNF_38236_38187 : F
+                           sync_GHOST_10 : F
+        mode_1_11_2_rts_model0_s00000001 : F
+                         CNF_38236_38163 : F
+       mode_1_11_18_rts_model0_s00000017 : F
+                         CNF_38236_38139 : F
+       mode_1_11_16_rts_model0_s00000015 : F
+                         CNF_38236_38115 : T
+       mode_1_11_13_rts_model0_s00000012 : T
+                         CNF_38236_38091 : F
+       mode_1_11_10_rts_model0_s00000009 : F
+                         CNF_38236_38067 : F
+        mode_1_11_7_rts_model0_s00000006 : F
+                         CNF_38236_38043 : F
+        mode_1_11_4_rts_model0_s00000003 : F
+                         CNF_38236_38019 : F
+                         CNF_38236_37994 : F
+        mode_1_11_3_rts_model0_s00000002 : F
+                         CNF_38236_37969 : F
+        mode_1_11_8_rts_model0_s00000007 : F
+                         CNF_38236_37956 : F
+                         CNF_38236_37932 : F
+                         CNF_38236_37907 : F
+                         CNF_38236_37894 : F
+                         CNF_38236_37870 : F
+        mode_1_11_6_rts_model0_s00000005 : F
+                         CNF_38236_37845 : F
+                         CNF_38236_37832 : F
+                         CNF_38236_37809 : F
+                         CNF_38236_37784 : F
+       mode_1_11_11_rts_model0_s00000010 : F
+                         CNF_38236_37771 : F
+                         CNF_38236_37747 : F
+                         CNF_38236_37722 : F
+                         CNF_38236_37709 : F
+                         CNF_38236_37685 : F
+        mode_1_11_9_rts_model0_s00000008 : F
+                         CNF_38236_37660 : F
+                         CNF_38236_37647 : F
+                         CNF_38236_37624 : F
+                         CNF_38236_37599 : F
+       mode_1_11_14_rts_model0_s00000013 : F
+                         CNF_38236_37586 : F
+                         CNF_38236_37562 : F
+                         CNF_38236_37537 : F
+                         CNF_38236_37524 : F
+                         CNF_38236_37500 : F
+       mode_1_11_12_rts_model0_s00000011 : F
+                         CNF_38236_37475 : F
+                         CNF_38236_37462 : F
+                         CNF_38236_37439 : F
+                         CNF_38236_37414 : F
+       mode_1_11_17_rts_model0_s00000016 : F
+                         CNF_38236_37401 : F
+                         CNF_38236_37377 : F
+                         CNF_38236_37352 : F
+                         CNF_38236_37339 : F
+                         CNF_38236_37315 : F
+       mode_1_11_15_rts_model0_s00000014 : F
+                         CNF_38236_37290 : F
+                         CNF_38236_37277 : F
+                         CNF_38236_37254 : F
+                         CNF_38236_37226 : F
+                         CNF_38236_37213 : F
+                         CNF_38236_37141 : F
+        mode_1_11_1_rts_model0_s00000000 : F
+                         CNF_38236_37139 : F
+                         CNF_38236_37137 : F
+                         CNF_38236_37135 : F
+                         CNF_38236_37133 : F
+                         CNF_38236_37131 : F
+                         CNF_38236_37129 : F
+                         CNF_38236_37127 : F
+                         CNF_38236_37125 : F
+                         CNF_38236_37123 : F
+                         CNF_38236_37121 : F
+                         CNF_38236_37119 : F
+                         CNF_38236_37117 : F
+                         CNF_38236_37115 : F
+                         CNF_38236_37113 : F
+                         CNF_38236_37111 : F
+                         CNF_38236_37109 : F
+                         CNF_38236_37159 : F
+                         CNF_38236_37187 : F
+                               noop_6_11 : T
+                               noop_5_11 : T
+                               noop_4_11 : F
+                               noop_3_11 : F
+                               noop_2_11 : F
+                               noop_1_11 : F
+                         CNF_40186_40183 : F
+            sync_reset_time_clock_2_1_11 : F
+                   mode_6_12_1_clock2_on : T
+                         CNF_40186_40177 : T
+                         CNF_40205_40202 : F
+            sync_reset_time_clock_3_1_11 : F
+                   mode_5_12_1_clock3_on : T
+                         CNF_40205_40196 : T
+                         CNF_40304_40294 : F
+               sync_E_UNC_OUT_OF_FUEL_11 : T
+                            sync_INIT_11 : F
+               sync_D_UNC_OUT_OF_FUEL_11 : F
+               sync_F_UNC_OUT_OF_FUEL_11 : F
+      mode_4_12_2_out_of_fuel0_s00000001 : T
+                         CNF_40304_40286 : F
+      mode_4_12_3_out_of_fuel0_s00000002 : F
+                         CNF_40304_40278 : F
+                         CNF_40304_40270 : F
+                         CNF_40304_40261 : T
+                         CNF_40304_40254 : F
+                         CNF_40304_40246 : F
+                         CNF_40304_40238 : F
+                         CNF_40304_40211 : F
+      mode_4_12_1_out_of_fuel0_s00000000 : F
+                         CNF_40304_40209 : T
+                         CNF_40304_40207 : F
+                         CNF_40304_40215 : T
+                         CNF_40304_40231 : F
+                         CNF_40404_40394 : F
+                    sync_E_UNC_ARRIVE_11 : T
+                    sync_D_UNC_ARRIVE_11 : F
+                    sync_F_UNC_ARRIVE_11 : F
+           mode_3_12_2_arrive0_s00000001 : T
+                         CNF_40404_40386 : F
+           mode_3_12_3_arrive0_s00000002 : F
+                         CNF_40404_40378 : F
+                         CNF_40404_40370 : F
+                         CNF_40404_40358 : T
+                         CNF_40404_40351 : F
+                         CNF_40404_40343 : F
+                         CNF_40404_40335 : F
+                         CNF_40404_40310 : F
+           mode_3_12_1_arrive0_s00000000 : F
+                         CNF_40404_40308 : T
+                         CNF_40404_40306 : F
+                         CNF_40404_40314 : T
+                         CNF_40404_40328 : F
+                         CNF_41256_41227 : F
+      sync_S_ACT_START_GOING_DOWNTOWN_11 : F
+      sync_C_ACT_START_GOING_DOWNTOWN_11 : F
+      sync_F_ACT_START_GOING_DOWNTOWN_11 : F
+                  sync_S_ACT_CALL_MOM_11 : F
+                  sync_C_ACT_CALL_MOM_11 : F
+                  sync_F_ACT_CALL_MOM_11 : F
+                            sync_FAIL_11 : F
+                 sync_S_ACT_SEND_TEXT_11 : F
+                 sync_C_ACT_SEND_TEXT_11 : F
+                 sync_F_ACT_SEND_TEXT_11 : F
+             sync_S_ACT_EAT_BREAKFAST_11 : F
+             sync_C_ACT_EAT_BREAKFAST_11 : T
+             sync_F_ACT_EAT_BREAKFAST_11 : F
+         sync_S_ACT_LISTEN_TO_PODCAST_11 : F
+         sync_C_ACT_LISTEN_TO_PODCAST_11 : F
+         sync_F_ACT_LISTEN_TO_PODCAST_11 : F
+                            sync_NOOP_11 : F
+       mode_2_12_2_base_model0_s00000001 : F
+                         CNF_41256_41198 : F
+       mode_2_12_4_base_model0_s00000003 : F
+                         CNF_41256_41169 : F
+                         CNF_41256_41162 : F
+                         CNF_41256_41134 : F
+       mode_2_12_6_base_model0_s00000005 : F
+                         CNF_41256_41105 : F
+       mode_2_12_3_base_model0_s00000002 : F
+                         CNF_41256_41076 : F
+       mode_2_12_5_base_model0_s00000004 : F
+                         CNF_41256_41047 : F
+                         CNF_41256_41035 : F
+                         CNF_41256_41007 : F
+       mode_2_12_8_base_model0_s00000007 : F
+                         CNF_41256_40978 : F
+                         CNF_41256_40949 : F
+       mode_2_12_7_base_model0_s00000006 : T
+                         CNF_41256_40920 : F
+                         CNF_41256_40902 : F
+                         CNF_41256_40874 : F
+      mode_2_12_10_base_model0_s00000009 : F
+                         CNF_41256_40845 : F
+                         CNF_41256_40816 : F
+       mode_2_12_9_base_model0_s00000008 : F
+                         CNF_41256_40787 : T
+                         CNF_41256_40766 : F
+                         CNF_41256_40738 : F
+      mode_2_12_12_base_model0_s00000011 : F
+                         CNF_41256_40709 : F
+                         CNF_41256_40680 : F
+      mode_2_12_11_base_model0_s00000010 : F
+                         CNF_41256_40651 : F
+                         CNF_41256_40627 : F
+                         CNF_41256_40599 : F
+      mode_2_12_13_base_model0_s00000012 : F
+                         CNF_41256_40570 : F
+                         CNF_41256_40541 : F
+                         CNF_41256_40430 : F
+       mode_2_12_1_base_model0_s00000000 : F
+                         CNF_41256_40428 : F
+                         CNF_41256_40426 : F
+                         CNF_41256_40424 : F
+                         CNF_41256_40422 : F
+                         CNF_41256_40420 : F
+                         CNF_41256_40418 : T
+                         CNF_41256_40416 : F
+                         CNF_41256_40414 : F
+                         CNF_41256_40412 : F
+                         CNF_41256_40410 : F
+                         CNF_41256_40408 : F
+                         CNF_41256_40406 : F
+                         CNF_41256_40444 : T
+                         CNF_41256_40513 : F
+                         CNF_42385_42336 : F
+                           sync_GHOST_11 : F
+        mode_1_12_2_rts_model0_s00000001 : F
+                         CNF_42385_42312 : F
+       mode_1_12_18_rts_model0_s00000017 : F
+                         CNF_42385_42288 : F
+       mode_1_12_16_rts_model0_s00000015 : F
+                         CNF_42385_42264 : F
+       mode_1_12_13_rts_model0_s00000012 : F
+                         CNF_42385_42240 : F
+       mode_1_12_10_rts_model0_s00000009 : F
+                         CNF_42385_42216 : F
+        mode_1_12_7_rts_model0_s00000006 : F
+                         CNF_42385_42192 : F
+        mode_1_12_4_rts_model0_s00000003 : F
+                         CNF_42385_42168 : F
+                         CNF_42385_42143 : F
+        mode_1_12_3_rts_model0_s00000002 : F
+                         CNF_42385_42118 : F
+        mode_1_12_8_rts_model0_s00000007 : F
+                         CNF_42385_42105 : F
+                         CNF_42385_42081 : F
+                         CNF_42385_42056 : F
+                         CNF_42385_42043 : F
+                         CNF_42385_42019 : F
+        mode_1_12_6_rts_model0_s00000005 : F
+                         CNF_42385_41994 : F
+                         CNF_42385_41981 : F
+                         CNF_42385_41958 : F
+                         CNF_42385_41933 : F
+       mode_1_12_11_rts_model0_s00000010 : F
+                         CNF_42385_41920 : F
+                         CNF_42385_41896 : F
+                         CNF_42385_41871 : F
+                         CNF_42385_41858 : F
+                         CNF_42385_41834 : F
+        mode_1_12_9_rts_model0_s00000008 : F
+                         CNF_42385_41809 : F
+                         CNF_42385_41796 : F
+                         CNF_42385_41773 : F
+                         CNF_42385_41748 : F
+       mode_1_12_14_rts_model0_s00000013 : F
+                         CNF_42385_41735 : F
+                         CNF_42385_41711 : F
+                         CNF_42385_41686 : F
+                         CNF_42385_41673 : F
+                         CNF_42385_41649 : T
+       mode_1_12_12_rts_model0_s00000011 : T
+                         CNF_42385_41624 : F
+                         CNF_42385_41611 : F
+                         CNF_42385_41588 : F
+                         CNF_42385_41563 : F
+       mode_1_12_17_rts_model0_s00000016 : F
+                         CNF_42385_41550 : F
+                         CNF_42385_41526 : F
+                         CNF_42385_41501 : F
+                         CNF_42385_41488 : F
+                         CNF_42385_41464 : F
+       mode_1_12_15_rts_model0_s00000014 : F
+                         CNF_42385_41439 : F
+                         CNF_42385_41426 : F
+                         CNF_42385_41403 : F
+                         CNF_42385_41375 : F
+                         CNF_42385_41362 : F
+                         CNF_42385_41290 : F
+        mode_1_12_1_rts_model0_s00000000 : F
+                         CNF_42385_41288 : F
+                         CNF_42385_41286 : F
+                         CNF_42385_41284 : F
+                         CNF_42385_41282 : F
+                         CNF_42385_41280 : F
+                         CNF_42385_41278 : F
+                         CNF_42385_41276 : F
+                         CNF_42385_41274 : F
+                         CNF_42385_41272 : F
+                         CNF_42385_41270 : F
+                         CNF_42385_41268 : F
+                         CNF_42385_41266 : F
+                         CNF_42385_41264 : F
+                         CNF_42385_41262 : F
+                         CNF_42385_41260 : F
+                         CNF_42385_41258 : F
+                         CNF_42385_41308 : F
+                         CNF_42385_41336 : F
+                               noop_6_12 : T
+                               noop_5_12 : T
+                               noop_4_12 : F
+                               noop_3_12 : F
+                               noop_2_12 : F
+                               noop_1_12 : F
+                         CNF_44335_44332 : F
+            sync_reset_time_clock_2_1_12 : F
+                   mode_6_13_1_clock2_on : T
+                         CNF_44335_44326 : T
+                         CNF_44354_44351 : F
+            sync_reset_time_clock_3_1_12 : F
+                   mode_5_13_1_clock3_on : T
+                         CNF_44354_44345 : T
+                         CNF_44453_44443 : F
+               sync_E_UNC_OUT_OF_FUEL_12 : T
+                            sync_INIT_12 : F
+               sync_D_UNC_OUT_OF_FUEL_12 : F
+               sync_F_UNC_OUT_OF_FUEL_12 : F
+      mode_4_13_2_out_of_fuel0_s00000001 : T
+                         CNF_44453_44435 : F
+      mode_4_13_3_out_of_fuel0_s00000002 : F
+                         CNF_44453_44427 : F
+                         CNF_44453_44419 : F
+                         CNF_44453_44410 : T
+                         CNF_44453_44403 : F
+                         CNF_44453_44395 : F
+                         CNF_44453_44387 : F
+                         CNF_44453_44360 : F
+      mode_4_13_1_out_of_fuel0_s00000000 : F
+                         CNF_44453_44358 : T
+                         CNF_44453_44356 : F
+                         CNF_44453_44364 : T
+                         CNF_44453_44380 : F
+                         CNF_44553_44543 : F
+                    sync_E_UNC_ARRIVE_12 : T
+                    sync_D_UNC_ARRIVE_12 : F
+                    sync_F_UNC_ARRIVE_12 : F
+           mode_3_13_2_arrive0_s00000001 : T
+                         CNF_44553_44535 : F
+           mode_3_13_3_arrive0_s00000002 : F
+                         CNF_44553_44527 : F
+                         CNF_44553_44519 : F
+                         CNF_44553_44507 : T
+                         CNF_44553_44500 : F
+                         CNF_44553_44492 : F
+                         CNF_44553_44484 : F
+                         CNF_44553_44459 : F
+           mode_3_13_1_arrive0_s00000000 : F
+                         CNF_44553_44457 : T
+                         CNF_44553_44455 : F
+                         CNF_44553_44463 : T
+                         CNF_44553_44477 : F
+                         CNF_45405_45376 : F
+      sync_S_ACT_START_GOING_DOWNTOWN_12 : F
+      sync_C_ACT_START_GOING_DOWNTOWN_12 : F
+      sync_F_ACT_START_GOING_DOWNTOWN_12 : F
+                  sync_S_ACT_CALL_MOM_12 : F
+                  sync_C_ACT_CALL_MOM_12 : F
+                  sync_F_ACT_CALL_MOM_12 : F
+                            sync_FAIL_12 : F
+                 sync_S_ACT_SEND_TEXT_12 : F
+                 sync_C_ACT_SEND_TEXT_12 : F
+                 sync_F_ACT_SEND_TEXT_12 : F
+             sync_S_ACT_EAT_BREAKFAST_12 : F
+             sync_C_ACT_EAT_BREAKFAST_12 : F
+             sync_F_ACT_EAT_BREAKFAST_12 : T
+         sync_S_ACT_LISTEN_TO_PODCAST_12 : F
+         sync_C_ACT_LISTEN_TO_PODCAST_12 : F
+         sync_F_ACT_LISTEN_TO_PODCAST_12 : F
+                            sync_NOOP_12 : F
+       mode_2_13_2_base_model0_s00000001 : F
+                         CNF_45405_45347 : F
+       mode_2_13_4_base_model0_s00000003 : F
+                         CNF_45405_45318 : F
+                         CNF_45405_45311 : F
+                         CNF_45405_45283 : F
+       mode_2_13_6_base_model0_s00000005 : F
+                         CNF_45405_45254 : F
+       mode_2_13_3_base_model0_s00000002 : F
+                         CNF_45405_45225 : F
+       mode_2_13_5_base_model0_s00000004 : F
+                         CNF_45405_45196 : F
+                         CNF_45405_45184 : F
+                         CNF_45405_45156 : F
+       mode_2_13_8_base_model0_s00000007 : F
+                         CNF_45405_45127 : F
+                         CNF_45405_45098 : F
+       mode_2_13_7_base_model0_s00000006 : F
+                         CNF_45405_45069 : F
+                         CNF_45405_45051 : F
+                         CNF_45405_45023 : F
+      mode_2_13_10_base_model0_s00000009 : F
+                         CNF_45405_44994 : F
+                         CNF_45405_44965 : T
+       mode_2_13_9_base_model0_s00000008 : T
+                         CNF_45405_44936 : F
+                         CNF_45405_44915 : F
+                         CNF_45405_44887 : F
+      mode_2_13_12_base_model0_s00000011 : F
+                         CNF_45405_44858 : F
+                         CNF_45405_44829 : F
+      mode_2_13_11_base_model0_s00000010 : F
+                         CNF_45405_44800 : F
+                         CNF_45405_44776 : F
+                         CNF_45405_44748 : F
+      mode_2_13_13_base_model0_s00000012 : F
+                         CNF_45405_44719 : F
+                         CNF_45405_44690 : F
+                         CNF_45405_44579 : F
+       mode_2_13_1_base_model0_s00000000 : F
+                         CNF_45405_44577 : F
+                         CNF_45405_44575 : F
+                         CNF_45405_44573 : F
+                         CNF_45405_44571 : F
+                         CNF_45405_44569 : F
+                         CNF_45405_44567 : F
+                         CNF_45405_44565 : F
+                         CNF_45405_44563 : F
+                         CNF_45405_44561 : F
+                         CNF_45405_44559 : F
+                         CNF_45405_44557 : F
+                         CNF_45405_44555 : F
+                         CNF_45405_44593 : F
+                         CNF_45405_44662 : F
+                         CNF_46534_46485 : F
+                           sync_GHOST_12 : F
+        mode_1_13_2_rts_model0_s00000001 : T
+                         CNF_46534_46461 : F
+       mode_1_13_18_rts_model0_s00000017 : F
+                         CNF_46534_46437 : F
+       mode_1_13_16_rts_model0_s00000015 : F
+                         CNF_46534_46413 : F
+       mode_1_13_13_rts_model0_s00000012 : F
+                         CNF_46534_46389 : F
+       mode_1_13_10_rts_model0_s00000009 : F
+                         CNF_46534_46365 : F
+        mode_1_13_7_rts_model0_s00000006 : F
+                         CNF_46534_46341 : F
+        mode_1_13_4_rts_model0_s00000003 : F
+                         CNF_46534_46317 : F
+                         CNF_46534_46292 : F
+        mode_1_13_3_rts_model0_s00000002 : F
+                         CNF_46534_46267 : F
+        mode_1_13_8_rts_model0_s00000007 : F
+                         CNF_46534_46254 : F
+                         CNF_46534_46230 : F
+                         CNF_46534_46205 : F
+                         CNF_46534_46192 : F
+                         CNF_46534_46168 : F
+        mode_1_13_6_rts_model0_s00000005 : F
+                         CNF_46534_46143 : F
+                         CNF_46534_46130 : F
+                         CNF_46534_46107 : F
+                         CNF_46534_46082 : F
+       mode_1_13_11_rts_model0_s00000010 : F
+                         CNF_46534_46069 : F
+                         CNF_46534_46045 : F
+                         CNF_46534_46020 : F
+                         CNF_46534_46007 : F
+                         CNF_46534_45983 : F
+        mode_1_13_9_rts_model0_s00000008 : F
+                         CNF_46534_45958 : F
+                         CNF_46534_45945 : F
+                         CNF_46534_45922 : F
+                         CNF_46534_45897 : F
+       mode_1_13_14_rts_model0_s00000013 : F
+                         CNF_46534_45884 : F
+                         CNF_46534_45860 : T
+                         CNF_46534_45835 : F
+                         CNF_46534_45822 : F
+                         CNF_46534_45798 : F
+       mode_1_13_12_rts_model0_s00000011 : F
+                         CNF_46534_45773 : F
+                         CNF_46534_45760 : F
+                         CNF_46534_45737 : F
+                         CNF_46534_45712 : F
+       mode_1_13_17_rts_model0_s00000016 : F
+                         CNF_46534_45699 : F
+                         CNF_46534_45675 : F
+                         CNF_46534_45650 : F
+                         CNF_46534_45637 : F
+                         CNF_46534_45613 : F
+       mode_1_13_15_rts_model0_s00000014 : F
+                         CNF_46534_45588 : F
+                         CNF_46534_45575 : F
+                         CNF_46534_45552 : F
+                         CNF_46534_45524 : F
+                         CNF_46534_45511 : F
+                         CNF_46534_45439 : F
+        mode_1_13_1_rts_model0_s00000000 : F
+                         CNF_46534_45437 : F
+                         CNF_46534_45435 : F
+                         CNF_46534_45433 : F
+                         CNF_46534_45431 : F
+                         CNF_46534_45429 : F
+                         CNF_46534_45427 : F
+                         CNF_46534_45425 : F
+                         CNF_46534_45423 : F
+                         CNF_46534_45421 : F
+                         CNF_46534_45419 : F
+                         CNF_46534_45417 : F
+                         CNF_46534_45415 : F
+                         CNF_46534_45413 : F
+                         CNF_46534_45411 : F
+                         CNF_46534_45409 : F
+                         CNF_46534_45407 : F
+                         CNF_46534_45457 : F
+                         CNF_46534_45485 : F
+                               noop_6_13 : T
+                               noop_5_13 : T
+                               noop_4_13 : F
+                               noop_3_13 : F
+                               noop_2_13 : F
+                               noop_1_13 : F
+                         CNF_48484_48481 : F
+            sync_reset_time_clock_2_1_13 : F
+                   mode_6_14_1_clock2_on : T
+                         CNF_48484_48475 : T
+                         CNF_48503_48500 : F
+            sync_reset_time_clock_3_1_13 : F
+                   mode_5_14_1_clock3_on : T
+                         CNF_48503_48494 : T
+                         CNF_48602_48592 : F
+               sync_E_UNC_OUT_OF_FUEL_13 : T
+                            sync_INIT_13 : F
+               sync_D_UNC_OUT_OF_FUEL_13 : F
+               sync_F_UNC_OUT_OF_FUEL_13 : F
+      mode_4_14_2_out_of_fuel0_s00000001 : T
+                         CNF_48602_48584 : F
+      mode_4_14_3_out_of_fuel0_s00000002 : F
+                         CNF_48602_48576 : F
+                         CNF_48602_48568 : F
+                         CNF_48602_48559 : T
+                         CNF_48602_48552 : F
+                         CNF_48602_48544 : F
+                         CNF_48602_48536 : F
+                         CNF_48602_48509 : F
+      mode_4_14_1_out_of_fuel0_s00000000 : F
+                         CNF_48602_48507 : T
+                         CNF_48602_48505 : F
+                         CNF_48602_48513 : T
+                         CNF_48602_48529 : F
+                         CNF_48702_48692 : F
+                    sync_E_UNC_ARRIVE_13 : T
+                    sync_D_UNC_ARRIVE_13 : F
+                    sync_F_UNC_ARRIVE_13 : F
+           mode_3_14_2_arrive0_s00000001 : T
+                         CNF_48702_48684 : F
+           mode_3_14_3_arrive0_s00000002 : F
+                         CNF_48702_48676 : F
+                         CNF_48702_48668 : F
+                         CNF_48702_48656 : T
+                         CNF_48702_48649 : F
+                         CNF_48702_48641 : F
+                         CNF_48702_48633 : F
+                         CNF_48702_48608 : F
+           mode_3_14_1_arrive0_s00000000 : F
+                         CNF_48702_48606 : T
+                         CNF_48702_48604 : F
+                         CNF_48702_48612 : T
+                         CNF_48702_48626 : F
+                         CNF_49554_49525 : F
+      sync_S_ACT_START_GOING_DOWNTOWN_13 : F
+      sync_C_ACT_START_GOING_DOWNTOWN_13 : F
+      sync_F_ACT_START_GOING_DOWNTOWN_13 : F
+                  sync_S_ACT_CALL_MOM_13 : F
+                  sync_C_ACT_CALL_MOM_13 : F
+                  sync_F_ACT_CALL_MOM_13 : F
+                            sync_FAIL_13 : F
+                 sync_S_ACT_SEND_TEXT_13 : F
+                 sync_C_ACT_SEND_TEXT_13 : F
+                 sync_F_ACT_SEND_TEXT_13 : F
+             sync_S_ACT_EAT_BREAKFAST_13 : F
+             sync_C_ACT_EAT_BREAKFAST_13 : F
+             sync_F_ACT_EAT_BREAKFAST_13 : F
+         sync_S_ACT_LISTEN_TO_PODCAST_13 : T
+         sync_C_ACT_LISTEN_TO_PODCAST_13 : F
+         sync_F_ACT_LISTEN_TO_PODCAST_13 : F
+                            sync_NOOP_13 : F
+       mode_2_14_2_base_model0_s00000001 : F
+                         CNF_49554_49496 : F
+       mode_2_14_4_base_model0_s00000003 : F
+                         CNF_49554_49467 : F
+                         CNF_49554_49460 : F
+                         CNF_49554_49432 : F
+       mode_2_14_6_base_model0_s00000005 : F
+                         CNF_49554_49403 : F
+       mode_2_14_3_base_model0_s00000002 : F
+                         CNF_49554_49374 : F
+       mode_2_14_5_base_model0_s00000004 : F
+                         CNF_49554_49345 : F
+                         CNF_49554_49333 : F
+                         CNF_49554_49305 : F
+       mode_2_14_8_base_model0_s00000007 : F
+                         CNF_49554_49276 : F
+                         CNF_49554_49247 : F
+       mode_2_14_7_base_model0_s00000006 : F
+                         CNF_49554_49218 : F
+                         CNF_49554_49200 : F
+                         CNF_49554_49172 : F
+      mode_2_14_10_base_model0_s00000009 : F
+                         CNF_49554_49143 : F
+                         CNF_49554_49114 : F
+       mode_2_14_9_base_model0_s00000008 : T
+                         CNF_49554_49085 : F
+                         CNF_49554_49064 : F
+                         CNF_49554_49036 : F
+      mode_2_14_12_base_model0_s00000011 : F
+                         CNF_49554_49007 : F
+                         CNF_49554_48978 : F
+      mode_2_14_11_base_model0_s00000010 : F
+                         CNF_49554_48949 : F
+                         CNF_49554_48925 : T
+                         CNF_49554_48897 : F
+      mode_2_14_13_base_model0_s00000012 : F
+                         CNF_49554_48868 : F
+                         CNF_49554_48839 : F
+                         CNF_49554_48728 : F
+       mode_2_14_1_base_model0_s00000000 : F
+                         CNF_49554_48726 : F
+                         CNF_49554_48724 : F
+                         CNF_49554_48722 : F
+                         CNF_49554_48720 : F
+                         CNF_49554_48718 : F
+                         CNF_49554_48716 : F
+                         CNF_49554_48714 : F
+                         CNF_49554_48712 : T
+                         CNF_49554_48710 : F
+                         CNF_49554_48708 : F
+                         CNF_49554_48706 : F
+                         CNF_49554_48704 : F
+                         CNF_49554_48742 : T
+                         CNF_49554_48811 : F
+                         CNF_50683_50634 : F
+                           sync_GHOST_13 : F
+        mode_1_14_2_rts_model0_s00000001 : F
+                         CNF_50683_50610 : F
+       mode_1_14_18_rts_model0_s00000017 : F
+                         CNF_50683_50586 : T
+       mode_1_14_16_rts_model0_s00000015 : T
+                         CNF_50683_50562 : F
+       mode_1_14_13_rts_model0_s00000012 : F
+                         CNF_50683_50538 : F
+       mode_1_14_10_rts_model0_s00000009 : F
+                         CNF_50683_50514 : F
+        mode_1_14_7_rts_model0_s00000006 : F
+                         CNF_50683_50490 : F
+        mode_1_14_4_rts_model0_s00000003 : F
+                         CNF_50683_50466 : F
+                         CNF_50683_50441 : F
+        mode_1_14_3_rts_model0_s00000002 : F
+                         CNF_50683_50416 : F
+        mode_1_14_8_rts_model0_s00000007 : F
+                         CNF_50683_50403 : F
+                         CNF_50683_50379 : F
+                         CNF_50683_50354 : F
+                         CNF_50683_50341 : F
+                         CNF_50683_50317 : F
+        mode_1_14_6_rts_model0_s00000005 : F
+                         CNF_50683_50292 : F
+                         CNF_50683_50279 : F
+                         CNF_50683_50256 : F
+                         CNF_50683_50231 : F
+       mode_1_14_11_rts_model0_s00000010 : F
+                         CNF_50683_50218 : F
+                         CNF_50683_50194 : F
+                         CNF_50683_50169 : F
+                         CNF_50683_50156 : F
+                         CNF_50683_50132 : F
+        mode_1_14_9_rts_model0_s00000008 : F
+                         CNF_50683_50107 : F
+                         CNF_50683_50094 : F
+                         CNF_50683_50071 : F
+                         CNF_50683_50046 : F
+       mode_1_14_14_rts_model0_s00000013 : F
+                         CNF_50683_50033 : F
+                         CNF_50683_50009 : F
+                         CNF_50683_49984 : F
+                         CNF_50683_49971 : F
+                         CNF_50683_49947 : F
+       mode_1_14_12_rts_model0_s00000011 : F
+                         CNF_50683_49922 : F
+                         CNF_50683_49909 : F
+                         CNF_50683_49886 : F
+                         CNF_50683_49861 : F
+       mode_1_14_17_rts_model0_s00000016 : F
+                         CNF_50683_49848 : F
+                         CNF_50683_49824 : F
+                         CNF_50683_49799 : F
+                         CNF_50683_49786 : F
+                         CNF_50683_49762 : F
+       mode_1_14_15_rts_model0_s00000014 : F
+                         CNF_50683_49737 : F
+                         CNF_50683_49724 : F
+                         CNF_50683_49701 : F
+                         CNF_50683_49673 : F
+                         CNF_50683_49660 : F
+                         CNF_50683_49588 : F
+        mode_1_14_1_rts_model0_s00000000 : F
+                         CNF_50683_49586 : F
+                         CNF_50683_49584 : F
+                         CNF_50683_49582 : F
+                         CNF_50683_49580 : F
+                         CNF_50683_49578 : F
+                         CNF_50683_49576 : F
+                         CNF_50683_49574 : F
+                         CNF_50683_49572 : F
+                         CNF_50683_49570 : F
+                         CNF_50683_49568 : F
+                         CNF_50683_49566 : F
+                         CNF_50683_49564 : F
+                         CNF_50683_49562 : F
+                         CNF_50683_49560 : F
+                         CNF_50683_49558 : F
+                         CNF_50683_49556 : F
+                         CNF_50683_49606 : F
+                         CNF_50683_49634 : F
+                               noop_6_14 : T
+                               noop_5_14 : T
+                               noop_4_14 : F
+                               noop_3_14 : F
+                               noop_2_14 : F
+                               noop_1_14 : F
+                         CNF_52633_52630 : F
+            sync_reset_time_clock_2_1_14 : F
+                   mode_6_15_1_clock2_on : T
+                         CNF_52633_52624 : T
+                         CNF_52652_52649 : F
+            sync_reset_time_clock_3_1_14 : F
+                   mode_5_15_1_clock3_on : T
+                         CNF_52652_52643 : T
+                         CNF_52751_52741 : F
+               sync_E_UNC_OUT_OF_FUEL_14 : T
+                            sync_INIT_14 : F
+               sync_D_UNC_OUT_OF_FUEL_14 : F
+               sync_F_UNC_OUT_OF_FUEL_14 : F
+      mode_4_15_2_out_of_fuel0_s00000001 : T
+                         CNF_52751_52733 : F
+      mode_4_15_3_out_of_fuel0_s00000002 : F
+                         CNF_52751_52725 : F
+                         CNF_52751_52717 : F
+                         CNF_52751_52708 : T
+                         CNF_52751_52701 : F
+                         CNF_52751_52693 : F
+                         CNF_52751_52685 : F
+                         CNF_52751_52658 : F
+      mode_4_15_1_out_of_fuel0_s00000000 : F
+                         CNF_52751_52656 : T
+                         CNF_52751_52654 : F
+                         CNF_52751_52662 : T
+                         CNF_52751_52678 : F
+                         CNF_52851_52841 : F
+                    sync_E_UNC_ARRIVE_14 : T
+                    sync_D_UNC_ARRIVE_14 : F
+                    sync_F_UNC_ARRIVE_14 : F
+           mode_3_15_2_arrive0_s00000001 : T
+                         CNF_52851_52833 : F
+           mode_3_15_3_arrive0_s00000002 : F
+                         CNF_52851_52825 : F
+                         CNF_52851_52817 : F
+                         CNF_52851_52805 : T
+                         CNF_52851_52798 : F
+                         CNF_52851_52790 : F
+                         CNF_52851_52782 : F
+                         CNF_52851_52757 : F
+           mode_3_15_1_arrive0_s00000000 : F
+                         CNF_52851_52755 : T
+                         CNF_52851_52753 : F
+                         CNF_52851_52761 : T
+                         CNF_52851_52775 : F
+                         CNF_53703_53674 : F
+      sync_S_ACT_START_GOING_DOWNTOWN_14 : F
+      sync_C_ACT_START_GOING_DOWNTOWN_14 : F
+      sync_F_ACT_START_GOING_DOWNTOWN_14 : F
+                  sync_S_ACT_CALL_MOM_14 : F
+                  sync_C_ACT_CALL_MOM_14 : F
+                  sync_F_ACT_CALL_MOM_14 : F
+                            sync_FAIL_14 : F
+                 sync_S_ACT_SEND_TEXT_14 : F
+                 sync_C_ACT_SEND_TEXT_14 : F
+                 sync_F_ACT_SEND_TEXT_14 : F
+             sync_S_ACT_EAT_BREAKFAST_14 : F
+             sync_C_ACT_EAT_BREAKFAST_14 : F
+             sync_F_ACT_EAT_BREAKFAST_14 : F
+         sync_S_ACT_LISTEN_TO_PODCAST_14 : F
+         sync_C_ACT_LISTEN_TO_PODCAST_14 : T
+         sync_F_ACT_LISTEN_TO_PODCAST_14 : F
+                            sync_NOOP_14 : F
+       mode_2_15_2_base_model0_s00000001 : F
+                         CNF_53703_53645 : F
+       mode_2_15_4_base_model0_s00000003 : F
+                         CNF_53703_53616 : F
+                         CNF_53703_53609 : F
+                         CNF_53703_53581 : F
+       mode_2_15_6_base_model0_s00000005 : F
+                         CNF_53703_53552 : F
+       mode_2_15_3_base_model0_s00000002 : F
+                         CNF_53703_53523 : F
+       mode_2_15_5_base_model0_s00000004 : F
+                         CNF_53703_53494 : F
+                         CNF_53703_53482 : F
+                         CNF_53703_53454 : F
+       mode_2_15_8_base_model0_s00000007 : F
+                         CNF_53703_53425 : F
+                         CNF_53703_53396 : F
+       mode_2_15_7_base_model0_s00000006 : F
+                         CNF_53703_53367 : F
+                         CNF_53703_53349 : F
+                         CNF_53703_53321 : F
+      mode_2_15_10_base_model0_s00000009 : F
+                         CNF_53703_53292 : F
+                         CNF_53703_53263 : F
+       mode_2_15_9_base_model0_s00000008 : T
+                         CNF_53703_53234 : F
+                         CNF_53703_53213 : F
+                         CNF_53703_53185 : F
+      mode_2_15_12_base_model0_s00000011 : F
+                         CNF_53703_53156 : F
+                         CNF_53703_53127 : F
+      mode_2_15_11_base_model0_s00000010 : F
+                         CNF_53703_53098 : T
+                         CNF_53703_53074 : F
+                         CNF_53703_53046 : F
+      mode_2_15_13_base_model0_s00000012 : F
+                         CNF_53703_53017 : F
+                         CNF_53703_52988 : F
+                         CNF_53703_52877 : F
+       mode_2_15_1_base_model0_s00000000 : F
+                         CNF_53703_52875 : F
+                         CNF_53703_52873 : F
+                         CNF_53703_52871 : F
+                         CNF_53703_52869 : F
+                         CNF_53703_52867 : F
+                         CNF_53703_52865 : F
+                         CNF_53703_52863 : F
+                         CNF_53703_52861 : T
+                         CNF_53703_52859 : F
+                         CNF_53703_52857 : F
+                         CNF_53703_52855 : F
+                         CNF_53703_52853 : F
+                         CNF_53703_52891 : T
+                         CNF_53703_52960 : F
+                         CNF_54832_54783 : F
+                           sync_GHOST_14 : F
+        mode_1_15_2_rts_model0_s00000001 : F
+                         CNF_54832_54759 : F
+       mode_1_15_18_rts_model0_s00000017 : F
+                         CNF_54832_54735 : F
+       mode_1_15_16_rts_model0_s00000015 : F
+                         CNF_54832_54711 : F
+       mode_1_15_13_rts_model0_s00000012 : F
+                         CNF_54832_54687 : F
+       mode_1_15_10_rts_model0_s00000009 : F
+                         CNF_54832_54663 : F
+        mode_1_15_7_rts_model0_s00000006 : F
+                         CNF_54832_54639 : F
+        mode_1_15_4_rts_model0_s00000003 : F
+                         CNF_54832_54615 : F
+                         CNF_54832_54590 : F
+        mode_1_15_3_rts_model0_s00000002 : F
+                         CNF_54832_54565 : F
+        mode_1_15_8_rts_model0_s00000007 : F
+                         CNF_54832_54552 : F
+                         CNF_54832_54528 : F
+                         CNF_54832_54503 : F
+                         CNF_54832_54490 : F
+                         CNF_54832_54466 : F
+        mode_1_15_6_rts_model0_s00000005 : F
+                         CNF_54832_54441 : F
+                         CNF_54832_54428 : F
+                         CNF_54832_54405 : F
+                         CNF_54832_54380 : F
+       mode_1_15_11_rts_model0_s00000010 : F
+                         CNF_54832_54367 : F
+                         CNF_54832_54343 : F
+                         CNF_54832_54318 : F
+                         CNF_54832_54305 : F
+                         CNF_54832_54281 : F
+        mode_1_15_9_rts_model0_s00000008 : F
+                         CNF_54832_54256 : F
+                         CNF_54832_54243 : F
+                         CNF_54832_54220 : F
+                         CNF_54832_54195 : F
+       mode_1_15_14_rts_model0_s00000013 : F
+                         CNF_54832_54182 : F
+                         CNF_54832_54158 : F
+                         CNF_54832_54133 : F
+                         CNF_54832_54120 : F
+                         CNF_54832_54096 : F
+       mode_1_15_12_rts_model0_s00000011 : F
+                         CNF_54832_54071 : F
+                         CNF_54832_54058 : F
+                         CNF_54832_54035 : F
+                         CNF_54832_54010 : F
+       mode_1_15_17_rts_model0_s00000016 : F
+                         CNF_54832_53997 : F
+                         CNF_54832_53973 : F
+                         CNF_54832_53948 : F
+                         CNF_54832_53935 : F
+                         CNF_54832_53911 : T
+       mode_1_15_15_rts_model0_s00000014 : T
+                         CNF_54832_53886 : F
+                         CNF_54832_53873 : F
+                         CNF_54832_53850 : F
+                         CNF_54832_53822 : F
+                         CNF_54832_53809 : F
+                         CNF_54832_53737 : F
+        mode_1_15_1_rts_model0_s00000000 : F
+                         CNF_54832_53735 : F
+                         CNF_54832_53733 : F
+                         CNF_54832_53731 : F
+                         CNF_54832_53729 : F
+                         CNF_54832_53727 : F
+                         CNF_54832_53725 : F
+                         CNF_54832_53723 : F
+                         CNF_54832_53721 : F
+                         CNF_54832_53719 : F
+                         CNF_54832_53717 : F
+                         CNF_54832_53715 : F
+                         CNF_54832_53713 : F
+                         CNF_54832_53711 : F
+                         CNF_54832_53709 : F
+                         CNF_54832_53707 : F
+                         CNF_54832_53705 : F
+                         CNF_54832_53755 : F
+                         CNF_54832_53783 : F
+                               noop_6_15 : T
+                               noop_5_15 : T
+                               noop_4_15 : F
+                               noop_3_15 : F
+                               noop_2_15 : F
+                               noop_1_15 : F
+                         CNF_56782_56779 : F
+            sync_reset_time_clock_2_1_15 : F
+                   mode_6_16_1_clock2_on : T
+                         CNF_56782_56773 : T
+                         CNF_56801_56798 : F
+            sync_reset_time_clock_3_1_15 : F
+                   mode_5_16_1_clock3_on : T
+                         CNF_56801_56792 : T
+                         CNF_56900_56890 : F
+               sync_E_UNC_OUT_OF_FUEL_15 : T
+                            sync_INIT_15 : F
+               sync_D_UNC_OUT_OF_FUEL_15 : F
+               sync_F_UNC_OUT_OF_FUEL_15 : F
+      mode_4_16_2_out_of_fuel0_s00000001 : T
+                         CNF_56900_56882 : F
+      mode_4_16_3_out_of_fuel0_s00000002 : F
+                         CNF_56900_56874 : F
+                         CNF_56900_56866 : F
+                         CNF_56900_56857 : T
+                         CNF_56900_56850 : F
+                         CNF_56900_56842 : F
+                         CNF_56900_56834 : F
+                         CNF_56900_56807 : F
+      mode_4_16_1_out_of_fuel0_s00000000 : F
+                         CNF_56900_56805 : T
+                         CNF_56900_56803 : F
+                         CNF_56900_56811 : T
+                         CNF_56900_56827 : F
+                         CNF_57000_56990 : F
+                    sync_E_UNC_ARRIVE_15 : T
+                    sync_D_UNC_ARRIVE_15 : F
+                    sync_F_UNC_ARRIVE_15 : F
+           mode_3_16_2_arrive0_s00000001 : T
+                         CNF_57000_56982 : F
+           mode_3_16_3_arrive0_s00000002 : F
+                         CNF_57000_56974 : F
+                         CNF_57000_56966 : F
+                         CNF_57000_56954 : T
+                         CNF_57000_56947 : F
+                         CNF_57000_56939 : F
+                         CNF_57000_56931 : F
+                         CNF_57000_56906 : F
+           mode_3_16_1_arrive0_s00000000 : F
+                         CNF_57000_56904 : T
+                         CNF_57000_56902 : F
+                         CNF_57000_56910 : T
+                         CNF_57000_56924 : F
+                         CNF_57852_57823 : F
+      sync_S_ACT_START_GOING_DOWNTOWN_15 : F
+      sync_C_ACT_START_GOING_DOWNTOWN_15 : F
+      sync_F_ACT_START_GOING_DOWNTOWN_15 : F
+                  sync_S_ACT_CALL_MOM_15 : F
+                  sync_C_ACT_CALL_MOM_15 : F
+                  sync_F_ACT_CALL_MOM_15 : F
+                            sync_FAIL_15 : F
+                 sync_S_ACT_SEND_TEXT_15 : F
+                 sync_C_ACT_SEND_TEXT_15 : F
+                 sync_F_ACT_SEND_TEXT_15 : F
+             sync_S_ACT_EAT_BREAKFAST_15 : F
+             sync_C_ACT_EAT_BREAKFAST_15 : F
+             sync_F_ACT_EAT_BREAKFAST_15 : F
+         sync_S_ACT_LISTEN_TO_PODCAST_15 : F
+         sync_C_ACT_LISTEN_TO_PODCAST_15 : F
+         sync_F_ACT_LISTEN_TO_PODCAST_15 : T
+                            sync_NOOP_15 : F
+       mode_2_16_2_base_model0_s00000001 : F
+                         CNF_57852_57794 : F
+       mode_2_16_4_base_model0_s00000003 : F
+                         CNF_57852_57765 : F
+                         CNF_57852_57758 : F
+                         CNF_57852_57730 : F
+       mode_2_16_6_base_model0_s00000005 : F
+                         CNF_57852_57701 : F
+       mode_2_16_3_base_model0_s00000002 : F
+                         CNF_57852_57672 : F
+       mode_2_16_5_base_model0_s00000004 : F
+                         CNF_57852_57643 : F
+                         CNF_57852_57631 : F
+                         CNF_57852_57603 : F
+       mode_2_16_8_base_model0_s00000007 : F
+                         CNF_57852_57574 : F
+                         CNF_57852_57545 : F
+       mode_2_16_7_base_model0_s00000006 : F
+                         CNF_57852_57516 : F
+                         CNF_57852_57498 : F
+                         CNF_57852_57470 : F
+      mode_2_16_10_base_model0_s00000009 : F
+                         CNF_57852_57441 : F
+                         CNF_57852_57412 : F
+       mode_2_16_9_base_model0_s00000008 : F
+                         CNF_57852_57383 : F
+                         CNF_57852_57362 : F
+                         CNF_57852_57334 : F
+      mode_2_16_12_base_model0_s00000011 : F
+                         CNF_57852_57305 : F
+                         CNF_57852_57276 : T
+      mode_2_16_11_base_model0_s00000010 : T
+                         CNF_57852_57247 : F
+                         CNF_57852_57223 : F
+                         CNF_57852_57195 : F
+      mode_2_16_13_base_model0_s00000012 : F
+                         CNF_57852_57166 : F
+                         CNF_57852_57137 : F
+                         CNF_57852_57026 : F
+       mode_2_16_1_base_model0_s00000000 : F
+                         CNF_57852_57024 : F
+                         CNF_57852_57022 : F
+                         CNF_57852_57020 : F
+                         CNF_57852_57018 : F
+                         CNF_57852_57016 : F
+                         CNF_57852_57014 : F
+                         CNF_57852_57012 : F
+                         CNF_57852_57010 : F
+                         CNF_57852_57008 : F
+                         CNF_57852_57006 : F
+                         CNF_57852_57004 : F
+                         CNF_57852_57002 : F
+                         CNF_57852_57040 : F
+                         CNF_57852_57109 : F
+                         CNF_58981_58932 : F
+                           sync_GHOST_15 : F
+        mode_1_16_2_rts_model0_s00000001 : T
+                         CNF_58981_58908 : F
+       mode_1_16_18_rts_model0_s00000017 : F
+                         CNF_58981_58884 : F
+       mode_1_16_16_rts_model0_s00000015 : F
+                         CNF_58981_58860 : F
+       mode_1_16_13_rts_model0_s00000012 : F
+                         CNF_58981_58836 : F
+       mode_1_16_10_rts_model0_s00000009 : F
+                         CNF_58981_58812 : F
+        mode_1_16_7_rts_model0_s00000006 : F
+                         CNF_58981_58788 : F
+        mode_1_16_4_rts_model0_s00000003 : F
+                         CNF_58981_58764 : F
+                         CNF_58981_58739 : F
+        mode_1_16_3_rts_model0_s00000002 : F
+                         CNF_58981_58714 : F
+        mode_1_16_8_rts_model0_s00000007 : F
+                         CNF_58981_58701 : F
+                         CNF_58981_58677 : F
+                         CNF_58981_58652 : F
+                         CNF_58981_58639 : F
+                         CNF_58981_58615 : F
+        mode_1_16_6_rts_model0_s00000005 : F
+                         CNF_58981_58590 : F
+                         CNF_58981_58577 : F
+                         CNF_58981_58554 : F
+                         CNF_58981_58529 : F
+       mode_1_16_11_rts_model0_s00000010 : F
+                         CNF_58981_58516 : F
+                         CNF_58981_58492 : F
+                         CNF_58981_58467 : F
+                         CNF_58981_58454 : F
+                         CNF_58981_58430 : F
+        mode_1_16_9_rts_model0_s00000008 : F
+                         CNF_58981_58405 : F
+                         CNF_58981_58392 : F
+                         CNF_58981_58369 : F
+                         CNF_58981_58344 : F
+       mode_1_16_14_rts_model0_s00000013 : F
+                         CNF_58981_58331 : F
+                         CNF_58981_58307 : F
+                         CNF_58981_58282 : F
+                         CNF_58981_58269 : F
+                         CNF_58981_58245 : F
+       mode_1_16_12_rts_model0_s00000011 : F
+                         CNF_58981_58220 : F
+                         CNF_58981_58207 : F
+                         CNF_58981_58184 : F
+                         CNF_58981_58159 : F
+       mode_1_16_17_rts_model0_s00000016 : F
+                         CNF_58981_58146 : F
+                         CNF_58981_58122 : T
+                         CNF_58981_58097 : F
+                         CNF_58981_58084 : F
+                         CNF_58981_58060 : F
+       mode_1_16_15_rts_model0_s00000014 : F
+                         CNF_58981_58035 : F
+                         CNF_58981_58022 : F
+                         CNF_58981_57999 : F
+                         CNF_58981_57971 : F
+                         CNF_58981_57958 : F
+                         CNF_58981_57886 : F
+        mode_1_16_1_rts_model0_s00000000 : F
+                         CNF_58981_57884 : F
+                         CNF_58981_57882 : F
+                         CNF_58981_57880 : F
+                         CNF_58981_57878 : F
+                         CNF_58981_57876 : F
+                         CNF_58981_57874 : F
+                         CNF_58981_57872 : F
+                         CNF_58981_57870 : F
+                         CNF_58981_57868 : F
+                         CNF_58981_57866 : F
+                         CNF_58981_57864 : F
+                         CNF_58981_57862 : F
+                         CNF_58981_57860 : F
+                         CNF_58981_57858 : F
+                         CNF_58981_57856 : F
+                         CNF_58981_57854 : F
+                         CNF_58981_57904 : F
+                         CNF_58981_57932 : F
+                               noop_6_16 : T
+                               noop_5_16 : T
+                               noop_4_16 : T
+                               noop_3_16 : T
+                               noop_2_16 : F
+                               noop_1_16 : F
+                         CNF_60931_60928 : F
+            sync_reset_time_clock_2_1_16 : F
+                   mode_6_17_1_clock2_on : T
+                         CNF_60931_60922 : T
+                         CNF_60950_60947 : F
+            sync_reset_time_clock_3_1_16 : F
+                   mode_5_17_1_clock3_on : T
+                         CNF_60950_60941 : T
+                         CNF_61049_61039 : F
+               sync_E_UNC_OUT_OF_FUEL_16 : F
+                            sync_INIT_16 : F
+               sync_D_UNC_OUT_OF_FUEL_16 : F
+               sync_F_UNC_OUT_OF_FUEL_16 : F
+      mode_4_17_2_out_of_fuel0_s00000001 : T
+                         CNF_61049_61031 : F
+      mode_4_17_3_out_of_fuel0_s00000002 : F
+                         CNF_61049_61023 : F
+                         CNF_61049_61015 : F
+                         CNF_61049_61006 : F
+                         CNF_61049_60999 : F
+                         CNF_61049_60991 : F
+                         CNF_61049_60983 : F
+                         CNF_61049_60956 : F
+      mode_4_17_1_out_of_fuel0_s00000000 : F
+                         CNF_61049_60954 : T
+                         CNF_61049_60952 : F
+                         CNF_61049_60960 : T
+                         CNF_61049_60976 : T
+                         CNF_61149_61139 : F
+                    sync_E_UNC_ARRIVE_16 : F
+                    sync_D_UNC_ARRIVE_16 : F
+                    sync_F_UNC_ARRIVE_16 : F
+           mode_3_17_2_arrive0_s00000001 : T
+                         CNF_61149_61131 : F
+           mode_3_17_3_arrive0_s00000002 : F
+                         CNF_61149_61123 : F
+                         CNF_61149_61115 : F
+                         CNF_61149_61103 : F
+                         CNF_61149_61096 : F
+                         CNF_61149_61088 : F
+                         CNF_61149_61080 : F
+                         CNF_61149_61055 : F
+           mode_3_17_1_arrive0_s00000000 : F
+                         CNF_61149_61053 : T
+                         CNF_61149_61051 : F
+                         CNF_61149_61059 : T
+                         CNF_61149_61073 : T
+                         CNF_62001_61972 : F
+      sync_S_ACT_START_GOING_DOWNTOWN_16 : F
+      sync_C_ACT_START_GOING_DOWNTOWN_16 : F
+      sync_F_ACT_START_GOING_DOWNTOWN_16 : F
+                  sync_S_ACT_CALL_MOM_16 : F
+                  sync_C_ACT_CALL_MOM_16 : F
+                  sync_F_ACT_CALL_MOM_16 : F
+                            sync_FAIL_16 : F
+                 sync_S_ACT_SEND_TEXT_16 : F
+                 sync_C_ACT_SEND_TEXT_16 : F
+                 sync_F_ACT_SEND_TEXT_16 : F
+             sync_S_ACT_EAT_BREAKFAST_16 : F
+             sync_C_ACT_EAT_BREAKFAST_16 : F
+             sync_F_ACT_EAT_BREAKFAST_16 : F
+         sync_S_ACT_LISTEN_TO_PODCAST_16 : F
+         sync_C_ACT_LISTEN_TO_PODCAST_16 : F
+         sync_F_ACT_LISTEN_TO_PODCAST_16 : F
+                            sync_NOOP_16 : T
+       mode_2_17_2_base_model0_s00000001 : F
+                         CNF_62001_61943 : F
+       mode_2_17_4_base_model0_s00000003 : F
+                         CNF_62001_61914 : F
+                         CNF_62001_61907 : F
+                         CNF_62001_61879 : F
+       mode_2_17_6_base_model0_s00000005 : F
+                         CNF_62001_61850 : F
+       mode_2_17_3_base_model0_s00000002 : F
+                         CNF_62001_61821 : F
+       mode_2_17_5_base_model0_s00000004 : F
+                         CNF_62001_61792 : F
+                         CNF_62001_61780 : F
+                         CNF_62001_61752 : F
+       mode_2_17_8_base_model0_s00000007 : F
+                         CNF_62001_61723 : F
+                         CNF_62001_61694 : F
+       mode_2_17_7_base_model0_s00000006 : F
+                         CNF_62001_61665 : F
+                         CNF_62001_61647 : F
+                         CNF_62001_61619 : F
+      mode_2_17_10_base_model0_s00000009 : F
+                         CNF_62001_61590 : F
+                         CNF_62001_61561 : F
+       mode_2_17_9_base_model0_s00000008 : F
+                         CNF_62001_61532 : F
+                         CNF_62001_61511 : F
+                         CNF_62001_61483 : F
+      mode_2_17_12_base_model0_s00000011 : F
+                         CNF_62001_61454 : F
+                         CNF_62001_61425 : F
+      mode_2_17_11_base_model0_s00000010 : T
+                         CNF_62001_61396 : F
+                         CNF_62001_61372 : F
+                         CNF_62001_61344 : F
+      mode_2_17_13_base_model0_s00000012 : F
+                         CNF_62001_61315 : F
+                         CNF_62001_61286 : T
+                         CNF_62001_61175 : F
+       mode_2_17_1_base_model0_s00000000 : F
+                         CNF_62001_61173 : F
+                         CNF_62001_61171 : F
+                         CNF_62001_61169 : F
+                         CNF_62001_61167 : F
+                         CNF_62001_61165 : F
+                         CNF_62001_61163 : F
+                         CNF_62001_61161 : F
+                         CNF_62001_61159 : F
+                         CNF_62001_61157 : F
+                         CNF_62001_61155 : T
+                         CNF_62001_61153 : F
+                         CNF_62001_61151 : F
+                         CNF_62001_61189 : T
+                         CNF_62001_61258 : F
+                         CNF_63130_63081 : F
+                           sync_GHOST_16 : F
+        mode_1_17_2_rts_model0_s00000001 : F
+                         CNF_63130_63057 : T
+       mode_1_17_18_rts_model0_s00000017 : T
+                         CNF_63130_63033 : F
+       mode_1_17_16_rts_model0_s00000015 : F
+                         CNF_63130_63009 : F
+       mode_1_17_13_rts_model0_s00000012 : F
+                         CNF_63130_62985 : F
+       mode_1_17_10_rts_model0_s00000009 : F
+                         CNF_63130_62961 : F
+        mode_1_17_7_rts_model0_s00000006 : F
+                         CNF_63130_62937 : F
+        mode_1_17_4_rts_model0_s00000003 : F
+                         CNF_63130_62913 : F
+                         CNF_63130_62888 : F
+        mode_1_17_3_rts_model0_s00000002 : F
+                         CNF_63130_62863 : F
+        mode_1_17_8_rts_model0_s00000007 : F
+                         CNF_63130_62850 : F
+                         CNF_63130_62826 : F
+                         CNF_63130_62801 : F
+                         CNF_63130_62788 : F
+                         CNF_63130_62764 : F
+        mode_1_17_6_rts_model0_s00000005 : F
+                         CNF_63130_62739 : F
+                         CNF_63130_62726 : F
+                         CNF_63130_62703 : F
+                         CNF_63130_62678 : F
+       mode_1_17_11_rts_model0_s00000010 : F
+                         CNF_63130_62665 : F
+                         CNF_63130_62641 : F
+                         CNF_63130_62616 : F
+                         CNF_63130_62603 : F
+                         CNF_63130_62579 : F
+        mode_1_17_9_rts_model0_s00000008 : F
+                         CNF_63130_62554 : F
+                         CNF_63130_62541 : F
+                         CNF_63130_62518 : F
+                         CNF_63130_62493 : F
+       mode_1_17_14_rts_model0_s00000013 : F
+                         CNF_63130_62480 : F
+                         CNF_63130_62456 : F
+                         CNF_63130_62431 : F
+                         CNF_63130_62418 : F
+                         CNF_63130_62394 : F
+       mode_1_17_12_rts_model0_s00000011 : F
+                         CNF_63130_62369 : F
+                         CNF_63130_62356 : F
+                         CNF_63130_62333 : F
+                         CNF_63130_62308 : F
+       mode_1_17_17_rts_model0_s00000016 : F
+                         CNF_63130_62295 : F
+                         CNF_63130_62271 : F
+                         CNF_63130_62246 : F
+                         CNF_63130_62233 : F
+                         CNF_63130_62209 : F
+       mode_1_17_15_rts_model0_s00000014 : F
+                         CNF_63130_62184 : F
+                         CNF_63130_62171 : F
+                         CNF_63130_62148 : F
+                         CNF_63130_62120 : F
+                         CNF_63130_62107 : F
+                         CNF_63130_62035 : F
+        mode_1_17_1_rts_model0_s00000000 : F
+                         CNF_63130_62033 : F
+                         CNF_63130_62031 : F
+                         CNF_63130_62029 : F
+                         CNF_63130_62027 : F
+                         CNF_63130_62025 : F
+                         CNF_63130_62023 : F
+                         CNF_63130_62021 : F
+                         CNF_63130_62019 : F
+                         CNF_63130_62017 : F
+                         CNF_63130_62015 : F
+                         CNF_63130_62013 : F
+                         CNF_63130_62011 : F
+                         CNF_63130_62009 : F
+                         CNF_63130_62007 : F
+                         CNF_63130_62005 : F
+                         CNF_63130_62003 : F
+                         CNF_63130_62053 : F
+                         CNF_63130_62081 : F
+                               noop_6_17 : T
+                               noop_5_17 : T
+                               noop_4_17 : F
+                               noop_3_17 : T
+                               noop_2_17 : F
+                               noop_1_17 : F
+                         CNF_65080_65077 : F
+            sync_reset_time_clock_2_1_17 : F
+                         CNF_65080_65071 : T
+                         CNF_65099_65096 : F
+            sync_reset_time_clock_3_1_17 : F
+                         CNF_65099_65090 : T
+                         CNF_65198_65188 : F
+               sync_E_UNC_OUT_OF_FUEL_17 : F
+                            sync_INIT_17 : F
+               sync_D_UNC_OUT_OF_FUEL_17 : T
+               sync_F_UNC_OUT_OF_FUEL_17 : T
+                         CNF_65198_65180 : F
+                         CNF_65198_65172 : F
+                         CNF_65198_65164 : T
+                         CNF_65198_65155 : F
+                         CNF_65198_65148 : F
+                         CNF_65198_65140 : F
+                         CNF_65198_65132 : F
+                         CNF_65198_65105 : F
+                         CNF_65198_65103 : F
+                         CNF_65198_65101 : F
+                         CNF_65198_65109 : F
+                         CNF_65198_65125 : F
+                         CNF_65298_65288 : F
+                    sync_E_UNC_ARRIVE_17 : F
+                    sync_D_UNC_ARRIVE_17 : F
+                    sync_F_UNC_ARRIVE_17 : F
+                         CNF_65298_65280 : F
+                         CNF_65298_65272 : F
+                         CNF_65298_65264 : F
+                         CNF_65298_65252 : F
+                         CNF_65298_65245 : F
+                         CNF_65298_65237 : F
+                         CNF_65298_65229 : F
+                         CNF_65298_65204 : F
+                         CNF_65298_65202 : T
+                         CNF_65298_65200 : F
+                         CNF_65298_65208 : T
+                         CNF_65298_65222 : T
+                         CNF_66150_66121 : F
+      sync_S_ACT_START_GOING_DOWNTOWN_17 : F
+      sync_C_ACT_START_GOING_DOWNTOWN_17 : F
+      sync_F_ACT_START_GOING_DOWNTOWN_17 : F
+                  sync_S_ACT_CALL_MOM_17 : F
+                  sync_C_ACT_CALL_MOM_17 : F
+                  sync_F_ACT_CALL_MOM_17 : F
+                            sync_FAIL_17 : T
+                 sync_S_ACT_SEND_TEXT_17 : F
+                 sync_C_ACT_SEND_TEXT_17 : F
+                 sync_F_ACT_SEND_TEXT_17 : F
+             sync_S_ACT_EAT_BREAKFAST_17 : F
+             sync_C_ACT_EAT_BREAKFAST_17 : F
+             sync_F_ACT_EAT_BREAKFAST_17 : F
+         sync_S_ACT_LISTEN_TO_PODCAST_17 : F
+         sync_C_ACT_LISTEN_TO_PODCAST_17 : F
+         sync_F_ACT_LISTEN_TO_PODCAST_17 : F
+                            sync_NOOP_17 : F
+                         CNF_66150_66092 : F
+                         CNF_66150_66063 : F
+                         CNF_66150_66056 : F
+                         CNF_66150_66028 : F
+                         CNF_66150_65999 : F
+                         CNF_66150_65970 : F
+                         CNF_66150_65941 : F
+                         CNF_66150_65929 : F
+                         CNF_66150_65901 : F
+                         CNF_66150_65872 : F
+                         CNF_66150_65843 : F
+                         CNF_66150_65814 : F
+                         CNF_66150_65796 : F
+                         CNF_66150_65768 : F
+                         CNF_66150_65739 : F
+                         CNF_66150_65710 : F
+                         CNF_66150_65681 : F
+                         CNF_66150_65660 : F
+                         CNF_66150_65632 : F
+                         CNF_66150_65603 : F
+                         CNF_66150_65574 : F
+                         CNF_66150_65545 : F
+                         CNF_66150_65521 : F
+                         CNF_66150_65493 : F
+                         CNF_66150_65464 : T
+                         CNF_66150_65435 : F
+                         CNF_66150_65324 : F
+                         CNF_66150_65322 : F
+                         CNF_66150_65320 : F
+                         CNF_66150_65318 : F
+                         CNF_66150_65316 : F
+                         CNF_66150_65314 : F
+                         CNF_66150_65312 : F
+                         CNF_66150_65310 : F
+                         CNF_66150_65308 : F
+                         CNF_66150_65306 : F
+                         CNF_66150_65304 : F
+                         CNF_66150_65302 : F
+                         CNF_66150_65300 : F
+                         CNF_66150_65338 : F
+                         CNF_66150_65407 : F
+                         CNF_67279_67230 : F
+                           sync_GHOST_17 : F
+                         CNF_67279_67206 : F
+                         CNF_67279_67182 : F
+                         CNF_67279_67158 : F
+                         CNF_67279_67134 : F
+                         CNF_67279_67110 : F
+                         CNF_67279_67086 : F
+                         CNF_67279_67062 : F
+                         CNF_67279_67037 : F
+                         CNF_67279_67012 : F
+                         CNF_67279_66999 : F
+                         CNF_67279_66975 : F
+                         CNF_67279_66950 : F
+                         CNF_67279_66937 : F
+                         CNF_67279_66913 : F
+                         CNF_67279_66888 : F
+                         CNF_67279_66875 : F
+                         CNF_67279_66852 : F
+                         CNF_67279_66827 : F
+                         CNF_67279_66814 : F
+                         CNF_67279_66790 : F
+                         CNF_67279_66765 : F
+                         CNF_67279_66752 : F
+                         CNF_67279_66728 : F
+                         CNF_67279_66703 : F
+                         CNF_67279_66690 : F
+                         CNF_67279_66667 : F
+                         CNF_67279_66642 : F
+                         CNF_67279_66629 : F
+                         CNF_67279_66605 : F
+                         CNF_67279_66580 : F
+                         CNF_67279_66567 : F
+                         CNF_67279_66543 : F
+                         CNF_67279_66518 : F
+                         CNF_67279_66505 : F
+                         CNF_67279_66482 : F
+                         CNF_67279_66457 : F
+                         CNF_67279_66444 : F
+                         CNF_67279_66420 : F
+                         CNF_67279_66395 : F
+                         CNF_67279_66382 : F
+                         CNF_67279_66358 : F
+                         CNF_67279_66333 : F
+                         CNF_67279_66320 : F
+                         CNF_67279_66297 : F
+                         CNF_67279_66269 : F
+                         CNF_67279_66256 : T
+                         CNF_67279_66184 : F
+                         CNF_67279_66182 : F
+                         CNF_67279_66180 : F
+                         CNF_67279_66178 : F
+                         CNF_67279_66176 : F
+                         CNF_67279_66174 : F
+                         CNF_67279_66172 : F
+                         CNF_67279_66170 : F
+                         CNF_67279_66168 : F
+                         CNF_67279_66166 : F
+                         CNF_67279_66164 : F
+                         CNF_67279_66162 : F
+                         CNF_67279_66160 : F
+                         CNF_67279_66158 : F
+                         CNF_67279_66156 : F
+                         CNF_67279_66154 : F
+                         CNF_67279_66152 : F
+                         CNF_67279_66202 : F
+                         CNF_67279_66230 : F

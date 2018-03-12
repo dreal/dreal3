@@ -232,6 +232,16 @@ int OpenSMTContext::executeIncremental( )
   assert( init );
   assert( config.incremental == 1 );
 
+  // Check whether initializing the heuristic results in UNSAT
+  if ( !solver.get_heuristic_shows_not_unsat() ) {
+    ostream & out = config.getRegularOut( );
+    out << "unsat" << endl;
+    if (config.nra_use_stat) {
+        out << config.nra_stat << endl;
+    }
+    return 0;
+  }
+
   // Initialize theory solvers
   egraph.initializeTheorySolvers( &solver );
 
@@ -753,15 +763,19 @@ lbool OpenSMTContext::CheckSAT( )
     else if ( state == l_False )
       out << "unsat" << endl;
     else {
-      fesetround(FE_TONEAREST);
-      std::streamsize ss = out.precision();
-      out.precision(17);
-      if ( config.nra_precision_output ) {
-          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      if (config.nra_mcts) {
+	out << "sat" << endl;
       } else {
+	fesetround(FE_TONEAREST);
+	std::streamsize ss = out.precision();
+	out.precision(17);
+	if ( config.nra_precision_output ) {
+          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+	} else {
           out << "delta-sat" << endl;
+	}
+	out.precision(ss);
       }
-      out.precision(ss);
     }
   }
   return state;
@@ -792,15 +806,19 @@ lbool OpenSMTContext::CheckSAT( vec< Enode * > & assumptions )
     else if ( state == l_False )
       out << "unsat" << endl;
     else {
-      fesetround(FE_TONEAREST);
-      std::streamsize ss = out.precision();
-      out.precision(17);
-      if ( config.nra_precision_output ) {
-          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      if (config.nra_mcts) {
+	out << "sat" << endl;
       } else {
+	fesetround(FE_TONEAREST);
+	std::streamsize ss = out.precision();
+	out.precision(17);
+	if ( config.nra_precision_output ) {
+          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+	} else {
           out << "delta-sat" << endl;
+	}
+	out.precision(ss);
       }
-      out.precision(ss);
     }
   }
   return state;
@@ -831,15 +849,19 @@ lbool OpenSMTContext::CheckSAT( vec< Enode * > & assumptions, unsigned limit )
     else if ( state == l_False )
       out << "unsat" << endl;
     else {
-      fesetround(FE_TONEAREST);
-      std::streamsize ss = out.precision();
-      out.precision(17);
-      if ( config.nra_precision_output ) {
-          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      if (config.nra_mcts) {
+	out << "sat" << endl;
       } else {
+	fesetround(FE_TONEAREST);
+	std::streamsize ss = out.precision();
+	out.precision(17);
+	if ( config.nra_precision_output ) {
+          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+	} else {
           out << "delta-sat" << endl;
+	}
+	out.precision(ss);
       }
-      out.precision(ss);
     }
   }
   return state;
@@ -875,11 +897,29 @@ void OpenSMTContext::PrintResult( const lbool & result, const lbool & config_sta
         << " " << config.icp_decisions()
               << endl;
         }
-        if(nra && config.nra_model){
-          solver.printCurrentAssignment(config.nra_model_out, true);
-        }
       }
     }
+
+  if ( result == l_True ) {
+    if (config.nra_mcts) {
+      out << "sat" << endl;
+    } else {
+      fesetround(FE_TONEAREST);
+      std::streamsize ss = out.precision();
+      out.precision(17);
+      if ( config.nra_precision_output ) {
+          out << "delta-sat with delta = " << std::fixed << config.nra_precision << endl;
+      } else {
+          out << "delta-sat" << endl;
+      }
+      out.precision(ss);
+    }
+  } else if ( result == l_False )
+    out << "unsat" << endl;
+  else if ( result == l_Undef )
+    out << "unknown" << endl;
+  else
+    opensmt_error( "unexpected result" );
 
   fflush( stdout );
 

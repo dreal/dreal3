@@ -70,7 +70,7 @@ int get_mode(Enode * lit) {
     return -1;
 }
 
-void hybrid_heuristic::initialize(SMTConfig & c, Egraph & egraph, THandler * thandler,
+bool hybrid_heuristic::initialize(SMTConfig & c, Egraph & egraph, THandler * thandler,
                                   vec<Lit> * trl, vec<int> * trl_lim) {
     DREAL_LOG_DEBUG << "hybrid_heuristic::initialize()";
     m_egraph = &egraph;
@@ -200,7 +200,11 @@ void hybrid_heuristic::initialize(SMTConfig & c, Egraph & egraph, THandler * tha
             vector<Enode *> * en = new vector<Enode *>();
             en->assign(num_labels, NULL);
             time_label_enodes.push_back(en);
-        }
+
+	    en = new vector<Enode *>();
+	    en->assign(num_autom, NULL);
+	    time_aut_noop_enodes.push_back(en);
+	}
 
         for (int a = 0; a < num_autom; a++) {
             mode_literals.push_back(new map<Enode *, pair<int, int> *>());
@@ -221,6 +225,25 @@ void hybrid_heuristic::initialize(SMTConfig & c, Egraph & egraph, THandler * tha
             }
         }
     }
+
+    bool found_path = false;
+    bool path_possible = true;
+    bool first_expansion = true;
+    lastDecisionStackEnd = m_decision_stack.size();
+   while (!found_path && path_possible) {
+        if (path_possible) {
+	  //cout << "expand" << endl;
+            found_path = expand_path(first_expansion);
+            first_expansion = false;
+        }
+        if (!found_path) {
+	  //	  cout << "bt" << endl;
+            path_possible = pbacktrack();
+        }
+    }
+    
+   return path_possible;
+
     //    DREAL_LOG_DEBUG << network_to_string();
 }
 
@@ -245,44 +268,56 @@ void hybrid_heuristic::inform(Enode * e) {
                 (*time_label_enodes[time])[label_index] = e;
                 label_enodes.insert(e);
                 label_enode_indices[e] = label_index;
-            }
-        }
-    } else if (e->isEq() && !e->isNot()) {
-        DREAL_LOG_INFO << "hybrid_heuristic::inform(): " << e << endl;
-        unordered_set<Enode *> const & vars = e->get_vars();
-        bool found_mode_literal = false;
-        for (auto const & v : vars) {
-            stringstream ss;
-            ss << v;
-            string var = ss.str();
-            if (var.find("mode") != string::npos) {
+            } else if (var.find("noop") != string::npos) {
+	      int time_pos = var.rfind("_") + 1;
+	      int time = atoi(var.substr(time_pos).c_str());
+	      int aut = atoi(var.substr(5, time_pos - 1).c_str());
+	      DREAL_LOG_DEBUG << "Got noop " << e << " time = " << time
+                                << " aut = " << aut;
+	      (*time_aut_noop_enodes[time])[aut-1] = e;
+	      noop_enodes.insert(e);
+	    }
+    //     }
+    // } else if (e->isEq() && !e->isNot()) {
+    //     DREAL_LOG_INFO << "hybrid_heuristic::inform(): " << e << endl;
+    //     unordered_set<Enode *> const & vars = e->get_vars();
+    //     bool found_mode_literal = false;
+    //     for (auto const & v : vars) {
+    //         stringstream ss;
+    //         ss << v;
+    //         string var = ss.str();
+            else if (var.find("mode") == 0) {
                 int autom_pos = var.find("_") + 1;
-                int time_pos = var.rfind("_") + 1;
-                int time = atoi(var.substr(time_pos).c_str());
+                int time_pos = var.find("_", autom_pos+1) + 1;
+		int mode_pos = var.find("_", time_pos+1) + 1;
+		int end_mode_pos = var.find("_", mode_pos+1) + 1;
+		
+                int time = atoi(var.substr(time_pos, mode_pos-1).c_str());
                 int autom =
                     (predecessors.size() == 1 ? 1
                                               : atoi(var.substr(autom_pos, time_pos - 1).c_str()));
-                int mode = get_mode(e);
+		int mode = atoi(var.substr(mode_pos, end_mode_pos-1).c_str());
+                // int mode = get_mode(e);
 
-                if (mode > -1) {
+                if (mode > -1 && mode_enodes.find(e) ==  mode_enodes.end()) {
                     DREAL_LOG_INFO << "autom = " << autom << " mode = " << mode
-                                   << " time = " << time << endl;
+                                   << " time = " << time << " " << e << endl;
                     (*mode_literals[autom - 1])[e] = new pair<int, int>(mode, time);
-                    DREAL_LOG_INFO
-                        << "Mode_lit[" << (e->getPolarity() == l_True ? "     " : "(not ") << e
-                        << (e->getPolarity() == l_True ? "" : ")") << "] = " << mode << " " << time
-                        << endl;
-
+		   
+                    // DREAL_LOG_INFO
+                    //     << "Mode_lit[" << (e->getPolarity() == l_True ? "     " : "(not ") << e
+                    //     << (e->getPolarity() == l_True ? "" : ")") << "] = " << mode << " " << time
+                    //     << endl;
                     (*(*time_mode_enodes[autom - 1])[time])[mode - 1] = e;
-                    found_mode_literal = true;
+                    //found_mode_literal = true;
                     mode_enodes.insert(e);
                 }
             }
-        }
-        if (!found_mode_literal) {
-            // add to default false suggestions
-            default_false_suggestions.push_back(e);
-        }
+         }
+        // if (!found_mode_literal) {
+        //     // add to default false suggestions
+        //     default_false_suggestions.push_back(e);
+        // }
         // } else if (e->isIntegral() && m_egraph->stepped_flows){
         //   int m_mode = static_cast<int>(e->getCdr()->getCar()->getValue());
         //   DREAL_LOG_DEBUG << "mode = " << m_mode;
@@ -683,10 +718,10 @@ bool hybrid_heuristic::expand_path(bool first_expansion) {
                 stringstream labels;
                 if (d->first) {
                     for (auto lab : *(d->first)) {
-                        labels << lab;
+		      labels << lab << " ";
                     }
                 }
-                DREAL_LOG_INFO << "dec = " << d->second << " [" << labels.str() << "]";
+                DREAL_LOG_INFO << "dec = " << d->second << " [" << labels.str() << "] " << (is_noop(d) ? "noop" : "");
             }
         }
 
@@ -1128,7 +1163,6 @@ bool hybrid_heuristic::pbacktrack() {
 
 string hybrid_heuristic::pathStackToString() {
     stringstream ss;
-    cout << "HI" << endl;
     ss << "Path Stack:\n";
     for (int time = 0; time < m_depth + 1; time++) {
         stringstream label;
@@ -1179,7 +1213,11 @@ void hybrid_heuristic::pushTrailOnStack() {
             DREAL_LOG_INFO << "hybrid_heuristic::pushTrailOnStack() " << e << " " << msign;
             m_stack.push_back(new std::pair<Enode *, bool>(e, msign));
             stack_literals.insert(e);
-        }
+        } else if (noop_enodes.find(e) != noop_enodes.end()) {
+            DREAL_LOG_INFO << "hybrid_heuristic::pushTrailOnStack() " << e << " " << msign;
+            m_stack.push_back(new std::pair<Enode *, bool>(e, msign));
+            stack_literals.insert(e);
+        } 
     }
     lastTrailEnd = trail->size();
     // displayTrail();
@@ -1218,7 +1256,7 @@ bool hybrid_heuristic::getSuggestions() {
 
     lastDecisionStackEnd = m_decision_stack.size();
 
-    bool first_expansion = true;
+    bool first_expansion = false;
     while (!found_path && path_possible) {
         if (path_possible) {
             found_path = expand_path(first_expansion);
@@ -1323,6 +1361,7 @@ bool hybrid_heuristic::getSuggestions() {
         int mode = m_decision_stack[sl]->second->back()->second;
         set<int> * labels = m_decision_stack[sl]->second->back()->first;
         int autom = m_decision_stack[sl]->first;
+	bool trans_is_noop = is_noop(m_decision_stack[sl]->second->back());
 
         stringstream label_string;
         if (labels) {
@@ -1337,12 +1376,13 @@ bool hybrid_heuristic::getSuggestions() {
 
         Enode * s;
         if ((*time_mode_enodes[autom])[time]->size() > 0) {
-            if (suggest_false) {
+	    if (suggest_false) {
                 for (int i = 0; i < static_cast<int>(predecessors[autom]->size()); i++) {
                     if (i != mode - 1) {
                         s = (*(*time_mode_enodes[autom])[time])[i];
-                        if (suggest_false && s &&  // s->getDecPolarity() == l_Undef &&
-                            !s->hasPolarity() && !s->isDeduced()) {
+                        if (suggest_false && s //&&  // s->getDecPolarity() == l_Undef &&
+                            //!s->hasPolarity() && !s->isDeduced()
+			    ) {
                             // s->setDecPolarity(l_False);
                             m_suggestions.push_back(new pair<Enode *, bool>(s, false));
                             DREAL_LOG_INFO << "Suggested Neg: " << s << endl;
@@ -1350,7 +1390,8 @@ bool hybrid_heuristic::getSuggestions() {
                     }
                 }
             }
-
+ DREAL_LOG_INFO << "Can suggest";
+         
             s = (*(*time_mode_enodes[autom])[time])[mode - 1];
             DREAL_LOG_INFO << "enode = " << s << endl;
             if (  // s->getDecPolarity() == l_Undef &&
@@ -1379,6 +1420,18 @@ bool hybrid_heuristic::getSuggestions() {
                 }
             }
         }
+
+	//suggest noop
+	if(time > 0 && time < m_depth){
+	Enode *noop_enode =(*time_aut_noop_enodes[time-1])[autom];
+	if(trans_is_noop) {
+	  DREAL_LOG_INFO << "Suggesting Noop: " << noop_enode;
+	  m_suggestions.push_back(new pair<Enode *, bool>(noop_enode, true));
+	} else {
+	   DREAL_LOG_INFO << "Suggesting Not Noop: " << noop_enode;
+	   m_suggestions.push_back(new pair<Enode *, bool>(noop_enode, false));
+	}
+	}
     }
 
     // // Suggest time 0 and time k mode literals

@@ -1,4 +1,23 @@
-FROM ubuntu:16.04
+FROM ubuntu
 MAINTAINER Soonho Kong <soonho.kong@gmail.com>
-COPY bin/dReal /usr/local/bin/dReal
-#ENTRYPOINT dReal
+COPY bin/dReal /usr/local/bin/
+COPY bin/dReach /usr/local/bin/
+COPY bin/bmc /usr/local/bin/
+RUN apt-get update
+RUN apt-get -y install -qq build-essential
+RUN apt-get -y install -qq autoconf automake bison flex git libtool make pkg-config python-software-properties texinfo
+ADD https://cmake.org/files/v3.7/cmake-3.7.2-Linux-x86_64.sh /cmake-3.7.2-Linux-x86_64.sh
+RUN mkdir /opt/cmake
+RUN sh /cmake-3.7.2-Linux-x86_64.sh --prefix=/opt/cmake --skip-license
+RUN ln -s /opt/cmake/bin/cmake /usr/local/bin/cmake
+RUN apt-get -y install -qq libbz2-dev coinor-libclp-dev clang-format glpk-utils libglpk-dev glpk-doc python-glpk
+RUN apt-get -y install software-properties-common python-software-properties && \
+    add-apt-repository ppa:jonathonf/gcc-7.1 && \
+    apt-get update && \
+    apt-get -y install gcc-7 g++-7
+RUN update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 60 && \
+    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-7 60
+RUN apt-get -y install python-dev   # for python2.x installs && \
+    apt-get -y install python3-dev  # for python3.x installs
+
+ENTRYPOINT dReal

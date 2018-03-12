@@ -46,7 +46,7 @@ namespace dreal {
 class plan_heuristic : public heuristic {
 public:
  plan_heuristic() : heuristic(), choice_index(0), first_path(true) {}
-    void initialize(SMTConfig &, Egraph &, THandler* thandler, vec<Lit> *trail, vec<int> *trail_lim);
+    bool initialize(SMTConfig &, Egraph &, THandler* thandler, vec<Lit> *trail, vec<int> *trail_lim);
     ~plan_heuristic() {
       for (auto t : time_process_enodes)
            delete t;
@@ -70,6 +70,8 @@ private:
     bool expand_path();
     bool unwind_path();
     bool pbacktrack();
+
+    void displayDecisionStack();
 
     std::vector<std::string> m_actions;
     std::vector<std::string> m_events;

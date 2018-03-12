@@ -981,6 +981,9 @@ json generate_trace_core(integral_constraint const & ic, vector<Enode *> const &
     for (auto const & var : pars_0) {
         json entry;
         string const name = var->getCar()->getNameFull();
+
+        if (name.find("gamma_") == 0) continue;
+
         entry["key"] = name;
         entry["mode"] = ic.get_flow_id();
         entry["step"] = extract_step(name);

@@ -56,6 +56,8 @@ private:
     void naive_fixpoint_alg(contractor_status & cs);
     // Worklist fixedpoint algorithm
     void worklist_fixpoint_alg(contractor_status & cs);
+    // Worklist GAC algorithm
+    void worklist_gac_alg(contractor_status & cs);
     void build_deps_map();
 };
 }  // namespace dreal

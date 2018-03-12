@@ -1,0 +1,85 @@
+/* ------------------------------------------------------------ */
+/* Page-level style */
+
+body {
+    padding-bottom: 50px;
+}
+
+#graph-container {
+    width: 100%;
+    height: 500px;
+    margin: 0 auto 20px auto;
+    /* background: rgba(255,255,255,0.5); */
+    background-color: #ffffff;
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+}
+
+#timeline-container {
+    width: 100%;
+    height: 100%;
+    margin: 0 auto 20px auto;
+    /* background: rgba(255,255,255,0.5); */
+    background-color: #ffffff;
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+}
+
+#ode-graph-container {
+    width: 100%;
+    height: 300px;
+    margin: 0 auto 20px auto;
+    /* background: rgba(255,255,255,0.5); */
+    background-color: #ffffff;
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+    /* Copied from the timeline config. */
+    border: 1px solid #bfbfbf;
+}
+
+.link-graph-container {
+    width: 100%;
+    height: 500px;
+    margin: 0 auto 20px auto;
+    /* background: rgba(255,255,255,0.5); */
+    background-color: #ffffff;
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+}
+
+/* ------------------------------------------------------------ */
+/* Highlighting active items. */
+
+/* Colors computed at:
+ * http://www.rapidtables.com/convert/color/hsl-to-rgb.htm
+ *
+ * hue: 60, sat: 50%, lightness: 80%/60%
+ */
+.drh-highlight {
+    background-color: #E6E6B3 !important;
+    border-color: #CCCC66 !important;
+    font-weight: bold;
+}
+
+/* ------------------------------------------------------------ */
+/* ODE legend support. */
+
+.color-block {
+    display: inline-block;
+    width: 5em;
+    margin-right: 10px;
+    margin-bottom: 5px;
+    box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+}
+
+/* To give the color blocks a reasonable height when empty, per:
+ * http://stackoverflow.com/questions/14217902/how-to-set-empty-span-height-equal-to-default-line-height#29354766
+ */
+span.color-block:empty:before {
+  content: "\200b"; // unicode zero width space character
+}
+
+.selected .color-block {
+    box-shadow: none;
+}
+
+.selected {
+    font-weight: bold;
+}
+
