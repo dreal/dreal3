@@ -34,7 +34,6 @@
      ("QF_NRA", QF_NRA);
      ("QF_NRA_ODE", QF_NRA_ODE);
      ("Real", REAL);
-     ("Bool", BOOL);
      ("and", AND);
      ("or", OR);
      ("not", NOT);

@@ -17,8 +17,9 @@ open Smt2
 exception SMTException of string
 
 (** a list of annoted flow ode **)
-type flows_annot = (string * ode list)  (** step, mode, ode **)
+type flows_annot = (int * ode list)  (** step, mode, ode **)
 
 (** compile a Hybrid automata into SMT formula **)
-val compile : Network.t -> int -> (string list) option -> (Costmap.t list option) -> Smt2_cmd.t list
-val pathgen : Network.t -> int -> (string list) list
+val compile : Hybrid.t -> int -> int list option -> Smt2.t
+val compile_pruned : Hybrid.t -> int -> Costmap.t -> Costmap.t -> Relevantvariables.t list option -> Smt2.t
+val pathgen : Hybrid.t -> int -> (int list) list

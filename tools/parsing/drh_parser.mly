@@ -22,32 +22,7 @@ let main_routine vardecl_list mode_list init goal ginv =
   let macromap = Vardeclmap.of_list float_list in
   let modemap = Modemap.of_list mode_list in
   let (init_mode, init_formula) = init in
-  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal, ginv, "singleton", 0, [])
-
-let remove_time (singleton: Hybrid.t) =
-  let vm = Map.remove "time" (Hybrid.vardeclmap singleton) in
-  let mm = Hybrid.modemap singleton in
-  let init_id = Hybrid.init_id singleton in
-  let init_formula = Hybrid.init_formula singleton in
-  let goals = Hybrid.goals singleton in
-  let ginvs = Hybrid.ginvs singleton in
-  let name = Hybrid.name singleton in
-  let num_id = Hybrid.numid singleton in
-  let labellist = Hybrid.labellist singleton in
-  Hybrid.make (vm, mm, init_id, init_formula, goals, ginvs, name, num_id, labellist)
-
-let get_network (singleton: Hybrid.t) =
-  (* analyze :: [string, [(string, string)]]*)
-  let base = "singleton" in
-  let inst = "singleton0" in
-  let subs = [] in
-  let init = (Hybrid.init_id singleton, Hybrid.init_formula singleton) in
-  let anal = ([(inst, base, subs, init)], ["singleton0"]) in
-  let vars = Hybrid.vardeclmap singleton in
-  let (timev, timep) =  Map.find "time" vars in
-  let time = ("time", timev, timep) in
-  let (mid, mfo) = List.hd (Hybrid.goals singleton) in (* [(modeid, formula)] *)
-  Network.postprocess_network (Network.makep (time, [singleton], Vardeclmap.of_list [], ([(inst, mid)], mfo))) anal
+  Hybrid.preprocess (vardeclmap, macromap, modemap, init_mode, init_formula, goal, ginv)
 %}
 
 %token LB RB LC RC LP RP EQ PLUS MINUS AST SLASH COMMA COLON SEMICOLON
@@ -70,13 +45,13 @@ let get_network (singleton: Hybrid.t) =
 
 %start main
 
-%type <Type.Network.t> main
+%type <Type.Hybrid.t> main
 %type <Type.Hybrid.formula> formula
 
 %%
 
-main: macro_list varDecl_list mode_list init goal ind { get_network (main_routine $2 $3 $4 $5 $6) }
-| macro_list varDecl_list mode_list init goal { get_network (main_routine $2 $3 $4 $5 []) }
+main: macro_list varDecl_list mode_list init goal ind { main_routine $2 $3 $4 $5 $6 }
+| macro_list varDecl_list mode_list init goal { main_routine $2 $3 $4 $5 [] }
 ;
 
 macro_list: /* */ { }
@@ -116,7 +91,7 @@ mode_list: /* */ { [] }
 
 mode: LC mode_id time_precision invts_op flows jumps RC
   {
-    Mode.make (string_of_int $2, $2, $3, $4, $5, $6, Jumpmap.of_list $6, 0)
+    Mode.make ($2, $3, $4, $5, $6, Jumpmap.of_list $6)
   }
 ;
 
@@ -179,118 +154,33 @@ exp:
      }
  | FNUM                   { Basic.Num $1 }
  | LP exp RP              { $2 }
- | exp PLUS exp           {
-         match ($1, $3) with
-           (Basic.Num n1, Basic.Num n2) -> Basic.Num (n1 +. n2)
-         | _ -> Basic.Add [$1; $3]
-       }
- | exp MINUS exp {
-         match ($1, $3) with
-           (Basic.Num n1, Basic.Num n2) -> Basic.Num (n1 -. n2)
-         | _ -> Basic.Sub [$1; $3]
-       }
+ | exp PLUS exp           { Basic.Add [$1; $3] }
+ | exp MINUS exp          { Basic.Sub [$1; $3] }
  | PLUS exp %prec UNARY   { $2 }
  | MINUS exp %prec UNARY  {
    match $2 with
    | Basic.Num n -> Basic.Num (0.0 -. n)
-   | Basic.Neg e' -> e'
    | _ -> Basic.Neg $2
  }
- | exp AST exp {
-         match ($1, $3) with
-           (Basic.Num n1, Basic.Num n2) -> Basic.Num (n1 *. n2)
-         | _ -> Basic.Mul [$1; $3]
-       }
- | exp SLASH exp          {
-         match ($1, $3) with
-           (Basic.Num n1, Basic.Num n2) -> Basic.Num (n1 /. n2)
-         | _ -> Basic.Div ($1, $3)
-       }
- | exp CARET exp          {
-         match ($1, $3) with
-           (Basic.Num n1, Basic.Num n2) -> Basic.Num (n1 ** n2)
-         | _ -> Basic.Pow ($1, $3)
-       }
- | SQRT LP exp RP         {
-          match $3 with
-            Basic.Num n -> Basic.Num (sqrt n)
-          | _ -> Basic.Sqrt $3
-        }
- | ABS LP exp RP          {
-          match $3 with
-            Basic.Num n -> Basic.Num (abs_float n)
-          | _ -> Basic.Abs $3
-       }
- | LOG  LP exp RP         {
-          match $3 with
-            Basic.Num n -> Basic.Num (log n)
-          | _ -> Basic.Log  $3
-        }
- | EXP  LP exp RP         {
-          match $3 with
-            Basic.Num n -> Basic.Num (exp n)
-          | _ -> Basic.Exp $3
-        }
- | SIN  LP exp RP         {
-          match $3 with
-            Basic.Num n -> Basic.Num (sin n)
-          | _ -> Basic.Sin $3
-        }
- | COS  LP exp RP         {
-          match $3 with
-            Basic.Num n -> Basic.Num (cos n)
-          | _ -> Basic.Cos $3
-        }
- | TAN  LP exp RP         {
-          match $3 with
-            Basic.Num n -> Basic.Num (tan n)
-          | _ -> Basic.Tan $3
-        }
- | ASIN LP exp RP         {
-          match $3 with
-            Basic.Num n -> Basic.Num (asin n)
-          | _ -> Basic.Asin $3
-        }
- | ACOS LP exp RP         {
-          match $3 with
-            Basic.Num n -> Basic.Num (acos n)
-          | _ -> Basic.Acos $3
-        }
- | ATAN LP exp RP         {
-          match $3 with
-            Basic.Num n -> Basic.Num (atan n)
-          | _ -> Basic.Atan $3
-        }
- | ATAN2 LP exp COMMA exp RP {
-           match ($3, $5) with
-            (Basic.Num n1, Basic.Num n2) -> Basic.Num (atan2 n1 n2)
-           | _ -> Basic.Atan2 ($3, $5)
-         }
- | MIN  LP exp COMMA exp RP  {
-          match ($3, $5) with
-            (Basic.Num n1, Basic.Num n2) -> Basic.Num (min n1 n2)
-          | _ -> Basic.Min ($3, $5)
-        }
- | MAX  LP exp COMMA exp RP  {
-          match ($3, $5) with
-            (Basic.Num n1, Basic.Num n2) -> Basic.Num (max n1 n2)
-          | _ -> Basic.Max ($3, $5)
-        }
- | SINH LP exp RP         {
-          match $3 with
-            Basic.Num n -> Basic.Num (sinh n)
-          | _ -> Basic.Sinh $3
-        }
- | COSH LP exp RP         {
-          match $3 with
-            Basic.Num n -> Basic.Num (cosh n)
-          | _ -> Basic.Cosh $3
-        }
- | TANH LP exp RP         {
-          match $3 with
-            Basic.Num n -> Basic.Num (tanh n)
-          | _ -> Basic.Tanh $3
-        }
+ | exp AST exp            { Basic.Mul [$1; $3] }
+ | exp SLASH exp          { Basic.Div ($1, $3) }
+ | exp CARET exp          { Basic.Pow ($1, $3) }
+ | SQRT LP exp RP         { Basic.Sqrt $3 }
+ | ABS LP exp RP          { Basic.Abs $3 }
+ | LOG  LP exp RP         { Basic.Log  $3 }
+ | EXP  LP exp RP         { Basic.Exp  $3 }
+ | SIN  LP exp RP         { Basic.Sin  $3 }
+ | COS  LP exp RP         { Basic.Cos  $3 }
+ | TAN  LP exp RP         { Basic.Tan  $3 }
+ | ASIN LP exp RP         { Basic.Asin $3 }
+ | ACOS LP exp RP         { Basic.Acos $3 }
+ | ATAN LP exp RP         { Basic.Atan $3 }
+ | ATAN2 LP exp COMMA exp RP { Basic.Atan2 ($3, $5) }
+ | MIN  LP exp COMMA exp RP  { Basic.Min ($3, $5) }
+ | MAX  LP exp COMMA exp RP  { Basic.Max ($3, $5) }
+ | SINH LP exp RP         { Basic.Sinh $3 }
+ | COSH LP exp RP         { Basic.Cosh $3 }
+ | TANH LP exp RP         { Basic.Tanh $3 }
  | ID LP exp_list RP      {
         let id = $1 in
         let arg_list = $3 in
@@ -320,8 +210,8 @@ jump_list: /* */ { [] }
 ;
 
 jump:
-    formula IMPLY AT FNUM formula SEMICOLON { Jump.make ($1, string_of_int (int_of_float $4), $5, []) }
-  | formula IMPLY precision AT FNUM formula SEMICOLON { Jump.makep ($1, $3, string_of_int (int_of_float $5), $6, []) }
+    formula IMPLY AT FNUM formula SEMICOLON { Jump.make ($1, int_of_float $4, $5) }
+  | formula IMPLY precision AT FNUM formula SEMICOLON { Jump.makep ($1, $3, int_of_float $5, $6) }
 ;
 
 init: INIT COLON mode_formula { $3 }
@@ -337,5 +227,5 @@ mode_formula_list: /* */ { [] }
   | mode_formula mode_formula_list { $1::$2 }
 ;
 
-mode_formula: AT FNUM formula SEMICOLON { (string_of_int (int_of_float $2), $3) }
+mode_formula: AT FNUM formula SEMICOLON { (int_of_float $2, $3) }
 ;
