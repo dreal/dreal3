@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #This version is slightly modified by Fedor Shmarov (FS) (email: f.shmarov@ncl.ac.uk)
 
-SCRIPT_PATHNAME=`python -c "import os,sys; print(os.path.realpath(\"$0\"))"`
+SCRIPT_PATHNAME=`python2 -c "import os,sys; print(os.path.realpath(\"$0\"))"`
 SCRIPT_PATH="$( cd "$( dirname "${SCRIPT_PATHNAME}" )" && pwd )"
 
 # TODO: Specify the paths for BMC tool and DREAL
